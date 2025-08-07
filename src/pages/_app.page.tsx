@@ -81,7 +81,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>pokkit Starter</title>
+        <title>pokkit Market</title>
       </Head>
       <Layout
         showLeftSidebar={
