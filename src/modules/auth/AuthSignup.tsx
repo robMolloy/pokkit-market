@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { pb } from "@/config/pocketbaseConfig";
 import { useState } from "react";
 import { TUser } from "../users/dbUsersUtils";
+import RolePicker from "../users/UserSelects";
 
 interface AuthSignupProps {
   onSignUp: (success: boolean, message: string) => void;
@@ -71,21 +72,7 @@ export function AuthSignup({ onSignUp }: AuthSignupProps) {
       </div>
       <div className="space-y-2">
         <Label htmlFor="signup-role">Role</Label>
-        {/* <Select
-          name="signup-role"
-          options={[
-            { value: "buyer", label: "Buyer" },
-            { value: "seller", label: "Seller" },
-            { value: "admin", label: "Admin" },
-          ]}
-        /> */}
-        <Input
-          id="signup-role"
-          name="signup-role"
-          type="role"
-          placeholder="Enter your role"
-          required
-        />
+        <RolePicker id="signup-role" name="signup-role" />
       </div>
       <div className="space-y-2">
         <Label htmlFor="signup-password">Password</Label>

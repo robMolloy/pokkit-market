@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import {
+  Stethoscope,
   Ban,
   Clock,
   ChevronDown,
@@ -38,9 +39,12 @@ import {
   List,
   Brain,
   Loader,
+  HelpCircle,
 } from "lucide-react";
 
 const iconMap = {
+  HelpCircle,
+  Stethoscope,
   Ban,
   Clock,
   ChevronDown,
