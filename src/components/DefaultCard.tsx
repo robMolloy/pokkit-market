@@ -18,7 +18,7 @@ export const DefaultCard = (p: {
           <img
             src={p.imageUrl}
             alt={p.imageAlt}
-            className="h-64 w-full object-cover transition-transform"
+            className="max-h-64 w-full object-cover transition-transform"
           />
         </div>
       )}
