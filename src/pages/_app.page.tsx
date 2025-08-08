@@ -13,8 +13,8 @@ import { useMarketBuyerProfileRecordsStore } from "@/modules/marketProfiles/mark
 import { useMarketBuyerProfileRecordStore } from "@/modules/marketProfiles/marketBuyerProfileRecordStore";
 import { useMarketSellerProfileRecordsStore } from "@/modules/marketProfiles/marketSellerProfileRecordsStore";
 import { useMarketSellerProfileRecordStore } from "@/modules/marketProfiles/marketSellerProfileRecordStore";
-import { SellerOnboardingScreen } from "@/modules/marketProfiles/screens/SellerOnboardingScreen";
 import { BuyerOnboardingScreen } from "@/modules/marketProfiles/screens/BuyerOnboardingScreen";
+import { SellerOnboardingScreen } from "@/modules/marketProfiles/screens/SellerOnboardingScreen";
 import { smartSubscribeToUsers, subscribeToUser, TUser } from "@/modules/users/dbUsersUtils";
 import { useUsersStore } from "@/modules/users/usersStore";
 import { AwaitingApprovalScreen } from "@/screens/AwaitingApprovalScreen";
@@ -31,6 +31,7 @@ import "@/styles/markdown.css";
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import { useEffect } from "react";
+import { Toaster } from "sonner";
 
 const useAuth = (p: {
   onIsLoading: () => void;
@@ -130,6 +131,7 @@ export default function App({ Component, pageProps }: AppProps) {
           ["approved", "admin"].includes(currentUserStore.data.user.status)
         }
       >
+        <Toaster />
         {(() => {
           if (currentUserStore.data.authStatus === "loading") return <LoadingScreen />;
 
@@ -147,12 +149,14 @@ export default function App({ Component, pageProps }: AppProps) {
           }
 
           if (currentUserStore.data.user.role === "seller") {
-            if (marketBuyerProfileRecordStore.data === undefined) return <LoadingScreen />;
-            if (marketBuyerProfileRecordStore.data === null) return <SellerOnboardingScreen />;
+            if (marketSellerProfileRecordStore.data === undefined) return <LoadingScreen />;
+            if (marketSellerProfileRecordStore.data === null)
+              return <SellerOnboardingScreen user={currentUserStore.data.user} />;
           }
           if (currentUserStore.data.user.role === "buyer") {
-            if (marketSellerProfileRecordStore.data === undefined) return <LoadingScreen />;
-            if (marketSellerProfileRecordStore.data === null) return <BuyerOnboardingScreen />;
+            if (marketBuyerProfileRecordStore.data === undefined) return <LoadingScreen />;
+            if (marketBuyerProfileRecordStore.data === null)
+              return <BuyerOnboardingScreen user={currentUserStore.data.user} />;
           }
 
           if (currentUserStore.data.user.status === "pending") return <AwaitingApprovalScreen />;
