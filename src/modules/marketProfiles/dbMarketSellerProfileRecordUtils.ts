@@ -15,8 +15,8 @@ const marketSellerProfileRecordSchema = z.object({
 export type TMarketSellerProfileRecord = z.infer<typeof marketSellerProfileRecordSchema>;
 export type TMarketSellerProfileRecordFormData = Omit<
   TMarketSellerProfileRecord,
-  "collectionId" | "collectionName" | "id" | "imageUrl" | "created" | "updated"
->;
+  "collectionId" | "collectionName" | "imageUrl" | "created" | "updated"
+> & { image: File };
 
 const collectionName = "marketSellerProfiles";
 
@@ -25,7 +25,8 @@ export const createMarketSellerProfileRecord = async (p: {
   data: TMarketSellerProfileRecordFormData;
 }) => {
   try {
-    const resp = await p.pb.collection(collectionName).create(p.data);
+    const { image: imageUrl, ...data } = p.data;
+    const resp = await p.pb.collection(collectionName).create({ imageUrl, ...data });
     return marketSellerProfileRecordSchema.safeParse(resp);
   } catch (error) {
     console.error(error);
@@ -34,10 +35,11 @@ export const createMarketSellerProfileRecord = async (p: {
 };
 export const updateMarketSellerProfileRecord = async (p: {
   pb: PocketBase;
-  data: TMarketSellerProfileRecord;
+  data: TMarketSellerProfileRecordFormData;
 }) => {
   try {
-    const resp = await p.pb.collection(collectionName).update(p.data.id, p.data);
+    const { image: imageUrl, ...data } = p.data;
+    const resp = await p.pb.collection(collectionName).update(p.data.id, { imageUrl, ...data });
     return marketSellerProfileRecordSchema.safeParse(resp);
   } catch (error) {
     console.error(error);
