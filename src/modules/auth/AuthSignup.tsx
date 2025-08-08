@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { pb } from "@/config/pocketbaseConfig";
 import { useState } from "react";
+import { TUser } from "../users/dbUsersUtils";
 
 interface AuthSignupProps {
   onSignUp: (success: boolean, message: string) => void;
@@ -19,6 +20,7 @@ export function AuthSignup({ onSignUp }: AuthSignupProps) {
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;
     const email = formData.get("signup-email") as string;
+    const role = formData.get("signup-role") as TUser["role"];
     const password = formData.get("signup-password") as string;
     const confirmPassword = formData.get("confirm-password") as string;
 
@@ -33,7 +35,7 @@ export function AuthSignup({ onSignUp }: AuthSignupProps) {
         name,
         email,
         status: "pending",
-        role: "standard",
+        role,
         emailVisibility: true,
         password,
         passwordConfirm: password,
@@ -64,6 +66,24 @@ export function AuthSignup({ onSignUp }: AuthSignupProps) {
           name="signup-email"
           type="email"
           placeholder="Enter your email"
+          required
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="signup-role">Role</Label>
+        {/* <Select
+          name="signup-role"
+          options={[
+            { value: "buyer", label: "Buyer" },
+            { value: "seller", label: "Seller" },
+            { value: "admin", label: "Admin" },
+          ]}
+        /> */}
+        <Input
+          id="signup-role"
+          name="signup-role"
+          type="role"
+          placeholder="Enter your role"
           required
         />
       </div>

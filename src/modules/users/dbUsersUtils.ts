@@ -8,7 +8,7 @@ export const userSchema = z.object({
   email: z.string(),
   name: z.string(),
   status: z.enum(["pending", "approved", "blocked"]),
-  role: z.enum(["standard", "admin"]),
+  role: z.enum(["buyer", "seller", "admin"]),
   created: z.string(),
   updated: z.string(),
 });
