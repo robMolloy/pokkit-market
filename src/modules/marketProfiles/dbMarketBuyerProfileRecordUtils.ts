@@ -57,17 +57,27 @@ export const listMarketBuyerProfileRecords = async (p: { pb: PocketBase }) => {
     return { success: false, error } as const;
   }
 };
+export const getMarketBuyerProfileRecordById = async (p: { pb: PocketBase; id: string }) => {
+  try {
+    const initData = await p.pb.collection(collectionName).getOne(p.id);
+
+    return marketBuyerProfileRecordSchema.safeParse(initData);
+  } catch (error) {
+    return { success: false, error } as const;
+  }
+};
 
 export const subscribeToMarketBuyerProfileRecord = async (p: {
   pb: PocketBase;
   id: string;
-  onChange: (x: TMarketBuyerProfileRecord) => void;
+  onChange: (x: TMarketBuyerProfileRecord | null) => void;
   onError: () => void;
 }) => {
   try {
-    p.pb.collection(collectionName).subscribe(p.id, (e) => {
+    await p.pb.collection(collectionName).subscribe(p.id, (e) => {
       const parseResp = marketBuyerProfileRecordSchema.safeParse(e.record);
-      if (parseResp.success) return p.onChange(parseResp.data);
+
+      return p.onChange(parseResp.success ? parseResp.data : null);
     });
 
     return {
@@ -78,6 +88,24 @@ export const subscribeToMarketBuyerProfileRecord = async (p: {
     p.onError();
     return { success: false, error } as const;
   }
+};
+
+export const smartSubscribeToMarketBuyerProfileRecord = async (p: {
+  pb: PocketBase;
+  id: string;
+  onChange: (x: TMarketBuyerProfileRecord | null) => void;
+  onError: () => void;
+}) => {
+  const resp = await getMarketBuyerProfileRecordById(p);
+
+  p.onChange(resp.success ? resp.data : null);
+
+  return subscribeToMarketBuyerProfileRecord({
+    pb: p.pb,
+    id: p.id,
+    onChange: (x) => p.onChange(x),
+    onError: p.onError,
+  });
 };
 
 export const subscribeToMarketBuyerProfileRecords = async (p: {

@@ -2,11 +2,19 @@ import { Layout } from "@/components/layout/Layout";
 import { pb } from "@/config/pocketbaseConfig";
 import { AuthForm } from "@/modules/auth/AuthForm";
 import {
+  smartSubscribeToMarketBuyerProfileRecord,
   smartSubscribeToMarketBuyerProfileRecords,
-  subscribeToMarketBuyerProfileRecord,
-} from "@/modules/marketBuyerProfiles/dbMarketBuyerProfileRecordUtils";
-import { useMarketBuyerProfileRecordsStore } from "@/modules/marketBuyerProfiles/marketBuyerProfileRecordsStore";
-import { useMarketBuyerProfileRecordStore } from "@/modules/marketBuyerProfiles/marketBuyerProfileRecordStore";
+} from "@/modules/marketProfiles/dbMarketBuyerProfileRecordUtils";
+import {
+  smartSubscribeToMarketSellerProfileRecord,
+  smartSubscribeToMarketSellerProfileRecords,
+} from "@/modules/marketProfiles/dbMarketSellerProfileRecordUtils";
+import { useMarketBuyerProfileRecordsStore } from "@/modules/marketProfiles/marketBuyerProfileRecordsStore";
+import { useMarketBuyerProfileRecordStore } from "@/modules/marketProfiles/marketBuyerProfileRecordStore";
+import { useMarketSellerProfileRecordsStore } from "@/modules/marketProfiles/marketSellerProfileRecordsStore";
+import { useMarketSellerProfileRecordStore } from "@/modules/marketProfiles/marketSellerProfileRecordStore";
+import { SellerOnboardingScreen } from "@/modules/marketProfiles/screens/SellerOnboardingScreen";
+import { BuyerOnboardingScreen } from "@/modules/marketProfiles/screens/BuyerOnboardingScreen";
 import { smartSubscribeToUsers, subscribeToUser, TUser } from "@/modules/users/dbUsersUtils";
 import { useUsersStore } from "@/modules/users/usersStore";
 import { AwaitingApprovalScreen } from "@/screens/AwaitingApprovalScreen";
@@ -76,6 +84,8 @@ export default function App({ Component, pageProps }: AppProps) {
   const currentUserStore = useCurrentUserStore();
   const marketBuyerProfileRecordStore = useMarketBuyerProfileRecordStore();
   const marketBuyerProfileRecordsStore = useMarketBuyerProfileRecordsStore();
+  const marketSellerProfileRecordStore = useMarketSellerProfileRecordStore();
+  const marketSellerProfileRecordsStore = useMarketSellerProfileRecordsStore();
 
   themeStore.useThemeStoreSideEffect();
 
@@ -88,11 +98,22 @@ export default function App({ Component, pageProps }: AppProps) {
         onChange: (x) => marketBuyerProfileRecordsStore.setData(x),
         onError: () => {},
       });
-      subscribeToMarketBuyerProfileRecord({
+      smartSubscribeToMarketBuyerProfileRecord({
         pb,
         id: user.id,
         onChange: (x) => marketBuyerProfileRecordStore.setData(x),
         onError: () => marketBuyerProfileRecordStore.setData(null),
+      });
+      smartSubscribeToMarketSellerProfileRecords({
+        pb,
+        onChange: (x) => marketSellerProfileRecordsStore.setData(x),
+        onError: () => {},
+      });
+      smartSubscribeToMarketSellerProfileRecord({
+        pb,
+        id: user.id,
+        onChange: (x) => marketSellerProfileRecordStore.setData(x),
+        onError: () => marketSellerProfileRecordStore.setData(null),
       });
     },
     onIsLoggedOut: () => {},
@@ -123,6 +144,15 @@ export default function App({ Component, pageProps }: AppProps) {
           if (currentUserStore.data.authStatus !== "loggedIn") {
             console.error(`this line should never be hit`);
             return;
+          }
+
+          if (currentUserStore.data.user.role === "seller") {
+            if (marketBuyerProfileRecordStore.data === undefined) return <LoadingScreen />;
+            if (marketBuyerProfileRecordStore.data === null) return <SellerOnboardingScreen />;
+          }
+          if (currentUserStore.data.user.role === "buyer") {
+            if (marketSellerProfileRecordStore.data === undefined) return <LoadingScreen />;
+            if (marketSellerProfileRecordStore.data === null) return <BuyerOnboardingScreen />;
           }
 
           if (currentUserStore.data.user.status === "pending") return <AwaitingApprovalScreen />;
