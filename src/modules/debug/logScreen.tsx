@@ -1,7 +1,9 @@
 import { useCurrentUserStore, useUnverifiedIsLoggedInStore } from "@/stores/authDataStore";
 import { useUsersStore } from "../users/usersStore";
-import { useMarketBuyerProfileRecordStore } from "../marketBuyerProfiles/marketBuyerProfileRecordStore";
-import { useMarketBuyerProfileRecordsStore } from "../marketBuyerProfiles/marketBuyerProfileRecordsStore";
+import { useMarketBuyerProfileRecordStore } from "../marketProfiles/marketBuyerProfileRecordStore";
+import { useMarketBuyerProfileRecordsStore } from "../marketProfiles/marketBuyerProfileRecordsStore";
+import { useMarketSellerProfileRecordStore } from "../marketProfiles/marketSellerProfileRecordStore";
+import { useMarketSellerProfileRecordsStore } from "../marketProfiles/marketSellerProfileRecordsStore";
 
 export const LogScreen = () => {
   const usersStore = useUsersStore();
@@ -9,6 +11,8 @@ export const LogScreen = () => {
   const unverifiedIsLoggedInStore = useUnverifiedIsLoggedInStore();
   const marketBuyerProfileRecordStore = useMarketBuyerProfileRecordStore();
   const marketBuyerProfileRecordsStore = useMarketBuyerProfileRecordsStore();
+  const marketSellerProfileRecordStore = useMarketSellerProfileRecordStore();
+  const marketSellerProfileRecordsStore = useMarketSellerProfileRecordsStore();
 
   return (
     <div>
@@ -20,6 +24,8 @@ export const LogScreen = () => {
             unverifiedIsLoggedInStore,
             marketBuyerProfileRecordStore,
             marketBuyerProfileRecordsStore,
+            marketSellerProfileRecordStore,
+            marketSellerProfileRecordsStore,
           },
           undefined,
           2,
