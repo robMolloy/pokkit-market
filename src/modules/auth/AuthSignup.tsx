@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { pb } from "@/config/pocketbaseConfig";
 import { useState } from "react";
 import { TUser } from "../users/dbUsersUtils";
-import RolePicker from "../users/UserSelects";
+import { RolePicker } from "../users/UserSelects";
 
 interface AuthSignupProps {
   onSignUp: (success: boolean, message: string) => void;
@@ -12,6 +12,7 @@ interface AuthSignupProps {
 
 export function AuthSignup({ onSignUp }: AuthSignupProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [role, setRole] = useState<TUser["role"]>("buyer");
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,7 +22,6 @@ export function AuthSignup({ onSignUp }: AuthSignupProps) {
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;
     const email = formData.get("signup-email") as string;
-    const role = formData.get("signup-role") as TUser["role"];
     const password = formData.get("signup-password") as string;
     const confirmPassword = formData.get("confirm-password") as string;
 
@@ -72,7 +72,7 @@ export function AuthSignup({ onSignUp }: AuthSignupProps) {
       </div>
       <div className="space-y-2">
         <Label htmlFor="signup-role">Role</Label>
-        <RolePicker id="signup-role" name="signup-role" />
+        <RolePicker value={role} onChange={({ role }) => setRole(role)} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="signup-password">Password</Label>

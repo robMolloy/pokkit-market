@@ -1,6 +1,5 @@
 import { CustomIcon } from "@/components/CustomIcon";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -9,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TUser } from "@/modules/users/dbUsersUtils";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const statusColorClassMap: { [k in TUser["status"]]: string } = {
   pending: "bg-muted",
@@ -78,8 +77,14 @@ function ClickableCard(p: { children: React.ReactNode; onClick: () => void; isSe
   );
 }
 
-export default function RolePicker(p: { id: string; name: string }) {
-  const [selectedRole, setSelectedRole] = useState<"buyer" | "seller">("buyer");
+export const RolePicker = (p: {
+  value: TUser["role"];
+  onChange: (x: Pick<TUser, "role">) => void;
+}) => {
+  const [selectedRole, setSelectedRole] = useState<TUser["role"]>(p.value);
+
+  useEffect(() => p.onChange({ role: selectedRole }), [selectedRole]);
+  useEffect(() => setSelectedRole(p.value), [p.value]);
 
   return (
     <div className="flex gap-4">
@@ -89,9 +94,7 @@ export default function RolePicker(p: { id: string; name: string }) {
           isSelected={selectedRole === "buyer"}
         >
           <div className="flex gap-2">
-            <div>
-              <CustomIcon iconName="HelpCircle" size="lg" />
-            </div>
+            <CustomIcon iconName="HelpCircle" size="lg" />
             <div>buyer</div>
           </div>
         </ClickableCard>
@@ -102,14 +105,11 @@ export default function RolePicker(p: { id: string; name: string }) {
           isSelected={selectedRole === "seller"}
         >
           <div className="flex gap-2">
-            <div>
-              <CustomIcon iconName="Stethoscope" size="lg" />
-            </div>
+            <CustomIcon iconName="Stethoscope" size="lg" />
             <div>seller</div>
           </div>
         </ClickableCard>
       </div>
-      <Input id={p.id} type="text" name={p.name} value={selectedRole} className="hidden" />
     </div>
   );
-}
+};
