@@ -1,7 +1,13 @@
 import { Layout } from "@/components/layout/Layout";
 import { pb } from "@/config/pocketbaseConfig";
 import { AuthForm } from "@/modules/auth/AuthForm";
-import { smartSubscribeToUsers, subscribeToUser } from "@/modules/users/dbUsersUtils";
+import {
+  smartSubscribeToMarketBuyerProfileRecords,
+  subscribeToMarketBuyerProfileRecord,
+} from "@/modules/marketBuyerProfiles/dbMarketBuyerProfileRecordUtils";
+import { useMarketBuyerProfileRecordsStore } from "@/modules/marketBuyerProfiles/marketBuyerProfileRecordsStore";
+import { useMarketBuyerProfileRecordStore } from "@/modules/marketBuyerProfiles/marketBuyerProfileRecordStore";
+import { smartSubscribeToUsers, subscribeToUser, TUser } from "@/modules/users/dbUsersUtils";
 import { useUsersStore } from "@/modules/users/usersStore";
 import { AwaitingApprovalScreen } from "@/screens/AwaitingApprovalScreen";
 import { BlockedScreen } from "@/screens/BlockedScreen";
@@ -20,7 +26,7 @@ import { useEffect } from "react";
 
 const useAuth = (p: {
   onIsLoading: () => void;
-  onIsLoggedIn: () => void;
+  onIsLoggedIn: (p: { user: TUser }) => void;
   onIsLoggedOut: () => void;
 }) => {
   const unverifiedIsLoggedInStore = useUnverifiedIsLoggedInStore();
@@ -54,7 +60,8 @@ const useAuth = (p: {
 
   useEffect(() => {
     if (currentUserStore.data.authStatus === "loading") return p.onIsLoading();
-    if (currentUserStore.data.authStatus === "loggedIn") return p.onIsLoggedIn();
+    if (currentUserStore.data.authStatus === "loggedIn")
+      return p.onIsLoggedIn({ user: currentUserStore.data.user });
     if (currentUserStore.data.authStatus === "loggedOut") return p.onIsLoggedOut();
 
     console.error("should never be hit");
@@ -67,13 +74,26 @@ export default function App({ Component, pageProps }: AppProps) {
   const themeStore = useThemeStore();
   const usersStore = useUsersStore();
   const currentUserStore = useCurrentUserStore();
+  const marketBuyerProfileRecordStore = useMarketBuyerProfileRecordStore();
+  const marketBuyerProfileRecordsStore = useMarketBuyerProfileRecordsStore();
 
   themeStore.useThemeStoreSideEffect();
 
   useAuth({
     onIsLoading: () => {},
-    onIsLoggedIn: () => {
+    onIsLoggedIn: ({ user }) => {
       smartSubscribeToUsers({ pb, onChange: (x) => usersStore.setData(x) });
+      smartSubscribeToMarketBuyerProfileRecords({
+        pb,
+        onChange: (x) => marketBuyerProfileRecordsStore.setData(x),
+        onError: () => {},
+      });
+      subscribeToMarketBuyerProfileRecord({
+        pb,
+        id: user.id,
+        onChange: (x) => marketBuyerProfileRecordStore.setData(x),
+        onError: () => marketBuyerProfileRecordStore.setData(null),
+      });
     },
     onIsLoggedOut: () => {},
   });
