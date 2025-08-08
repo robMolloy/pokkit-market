@@ -3,11 +3,14 @@ import { DefaultGrid } from "@/components/DefaultGrid";
 import { CardTitle } from "@/components/ui/card";
 import { pb } from "@/config/pocketbaseConfig";
 import { useMarketBuyerProfileRecordsStore } from "../marketBuyerProfileRecordsStore";
+import { MainLayout } from "@/components/layout/Layout";
+import { H1 } from "@/components/ui/defaultComponents";
 
 export const DisplayBuyersScreen = () => {
   const marketBuyerProfileRecordsStore = useMarketBuyerProfileRecordsStore();
   return (
-    <>
+    <MainLayout>
+      <H1>Buyers</H1>
       <DefaultGrid>
         {marketBuyerProfileRecordsStore.data?.map((x) => (
           <DefaultCard
@@ -21,6 +24,6 @@ export const DisplayBuyersScreen = () => {
           </DefaultCard>
         ))}
       </DefaultGrid>
-    </>
+    </MainLayout>
   );
 };

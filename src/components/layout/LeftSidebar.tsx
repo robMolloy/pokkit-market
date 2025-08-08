@@ -91,6 +91,28 @@ export function LeftSidebar() {
             <SidebarButton href="/" iconName={"Home"} isHighlighted={router.pathname === "/"}>
               Home
             </SidebarButton>
+            {currentUserStore.data.authStatus === "loggedIn" &&
+              currentUserStore.data.user.status === "approved" &&
+              currentUserStore.data.user.role !== "buyer" && (
+                <SidebarButton
+                  href="/buyers"
+                  iconName="Users"
+                  isHighlighted={router.pathname === "/buyers"}
+                >
+                  Buyers
+                </SidebarButton>
+              )}
+            {currentUserStore.data.authStatus === "loggedIn" &&
+              currentUserStore.data.user.status === "approved" &&
+              currentUserStore.data.user.role !== "seller" && (
+                <SidebarButton
+                  href="/sellers"
+                  iconName="Users"
+                  isHighlighted={router.pathname === "/sellers"}
+                >
+                  Sellers
+                </SidebarButton>
+              )}
           </div>
         </div>
         <div className="relative flex-1">
