@@ -12,20 +12,28 @@ export const DisplayBuyersScreen = () => {
   return (
     <MainLayout>
       <H1>Buyers</H1>
-      <DefaultGrid>
-        {marketBuyerProfileRecordsStore.data?.map((x) => (
-          <Link href={`/chat/${x.userId}`} key={x.id}>
-            <DefaultCard
-              imageUrl={pb.files.getURL(x, x.imageUrl)}
-              imageAlt=""
-              header={<CardTitle>{x.name}</CardTitle>}
-              onClick={() => {}}
-            >
-              {x.name}
-            </DefaultCard>
-          </Link>
-        ))}
-      </DefaultGrid>
+      {(() => {
+        if (marketBuyerProfileRecordsStore.data === undefined) return <div>loading</div>;
+        if (marketBuyerProfileRecordsStore.data === null) return <div>error</div>;
+        if (marketBuyerProfileRecordsStore.data.length === 0) return <div>No buyers yet</div>;
+
+        return (
+          <DefaultGrid>
+            {marketBuyerProfileRecordsStore.data.map((x) => (
+              <Link href={`/chat/${x.userId}`} key={x.id}>
+                <DefaultCard
+                  imageUrl={pb.files.getURL(x, x.imageUrl)}
+                  imageAlt=""
+                  header={<CardTitle>{x.name}</CardTitle>}
+                  onClick={() => {}}
+                >
+                  {x.name}
+                </DefaultCard>
+              </Link>
+            ))}
+          </DefaultGrid>
+        );
+      })()}
     </MainLayout>
   );
 };
