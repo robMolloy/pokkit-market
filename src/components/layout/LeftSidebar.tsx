@@ -6,12 +6,15 @@ import { useCurrentUserStore } from "@/stores/authDataStore";
 import { Tooltip } from "@radix-ui/react-tooltip";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ReactNode } from "react";
 import { CustomIcon } from "../CustomIcon";
 import { TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { MainLayout } from "./Layout";
+import { PreserveScrollAbility } from "./Layout";
 
-const SidebarButtonWrapper = (p: { children: ReactNode; href?: string; disabled?: boolean }) => {
+const SidebarButtonWrapper = (p: {
+  children: React.ReactNode;
+  href?: string;
+  disabled?: boolean;
+}) => {
   return p.href ? (
     <Link href={p.disabled ? "#" : p.href} className={p.disabled ? "pointer-events-none" : ""}>
       {p.children}
@@ -21,7 +24,10 @@ const SidebarButtonWrapper = (p: { children: ReactNode; href?: string; disabled?
   );
 };
 
-const PossibleTooltipWrapper = (p: { children: ReactNode; tooltipContent?: React.ReactNode }) => {
+const PossibleTooltipWrapper = (p: {
+  children: React.ReactNode;
+  tooltipContent?: React.ReactNode;
+}) => {
   return p.tooltipContent ? (
     <TooltipProvider>
       <Tooltip>
@@ -37,7 +43,7 @@ const PossibleTooltipWrapper = (p: { children: ReactNode; tooltipContent?: React
 const SidebarButton = (p: {
   href?: string;
   iconName?: React.ComponentProps<typeof CustomIcon>["iconName"];
-  children: ReactNode;
+  children: React.ReactNode;
   isHighlighted: boolean;
   onClick?: () => void;
   badgeCount?: number;
@@ -76,6 +82,20 @@ const SidebarButton = (p: {
   );
 };
 
+const LeftSidebarTemplate = (p: {
+  top: React.ReactNode;
+  middle: React.ReactNode;
+  bottom: React.ReactNode;
+}) => {
+  return (
+    <PreserveScrollAbility className="border-r">
+      <div className="flex flex-col gap-1 border-b p-2">{p.top}</div>
+      <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-2">{p.middle}</div>
+      <div className="flex flex-col gap-1 border-t p-2">{p.bottom}</div>
+    </PreserveScrollAbility>
+  );
+};
+
 export function LeftSidebar() {
   const router = useRouter();
 
@@ -83,62 +103,67 @@ export function LeftSidebar() {
   const usersStore = useUsersStore();
   const pendingUsersCount = usersStore.data.filter((user) => user.status === "pending").length;
 
-  return (
-    <MainLayout fillPageExactly padding={false}>
-      <div className="flex h-full flex-col">
-        <div className="border-b p-2">
-          <div className="flex flex-col gap-1">
-            <SidebarButton href="/" iconName={"Home"} isHighlighted={router.pathname === "/"}>
-              Home
-            </SidebarButton>
-            {currentUserStore.data.authStatus === "loggedIn" &&
-              currentUserStore.data.user.status === "approved" &&
-              currentUserStore.data.user.role !== "buyer" && (
-                <SidebarButton
-                  href="/buyers"
-                  iconName="Users"
-                  isHighlighted={router.pathname === "/buyers"}
-                >
-                  Buyers
-                </SidebarButton>
-              )}
-            {currentUserStore.data.authStatus === "loggedIn" &&
-              currentUserStore.data.user.status === "approved" &&
-              currentUserStore.data.user.role !== "seller" && (
-                <SidebarButton
-                  href="/sellers"
-                  iconName="Users"
-                  isHighlighted={router.pathname === "/sellers"}
-                >
-                  Sellers
-                </SidebarButton>
-              )}
-          </div>
-        </div>
-        <div className="relative flex-1">
-          <div className="absolute inset-0 flex flex-col gap-1 overflow-y-auto p-2"></div>
-        </div>
+  const isAdmin =
+    currentUserStore.data.authStatus === "loggedIn" &&
+    currentUserStore.data.user.status === "approved" &&
+    currentUserStore.data.user.role === "admin";
 
-        <div className="border-t p-2">
-          <div className="flex flex-col gap-1">
-            {currentUserStore.data.authStatus === "loggedIn" &&
-              currentUserStore.data.user.status === "approved" &&
-              currentUserStore.data.user.role === "admin" && (
-                <SidebarButton
-                  href="/users"
-                  iconName="Users"
-                  isHighlighted={router.pathname === "/users"}
-                  badgeCount={pendingUsersCount}
-                >
-                  Users
-                </SidebarButton>
-              )}
-            <SidebarButton iconName="LogOut" isHighlighted={false} onClick={() => logout({ pb })}>
-              Log Out
+  return (
+    <LeftSidebarTemplate
+      top={
+        <>
+          <SidebarButton href="/" iconName="Home" isHighlighted={router.pathname === "/"}>
+            Home
+          </SidebarButton>
+          <SidebarButton
+            href="/contacts"
+            iconName="Users"
+            isHighlighted={router.pathname === "/contacts"}
+          >
+            Contacts
+          </SidebarButton>
+          {currentUserStore.data.authStatus === "loggedIn" &&
+            currentUserStore.data.user.status === "approved" &&
+            currentUserStore.data.user.role !== "buyer" && (
+              <SidebarButton
+                href="/buyers"
+                iconName="Users"
+                isHighlighted={router.pathname === "/buyers"}
+              >
+                Buyers
+              </SidebarButton>
+            )}
+          {currentUserStore.data.authStatus === "loggedIn" &&
+            currentUserStore.data.user.status === "approved" &&
+            currentUserStore.data.user.role !== "seller" && (
+              <SidebarButton
+                href="/sellers"
+                iconName="Users"
+                isHighlighted={router.pathname === "/sellers"}
+              >
+                Sellers
+              </SidebarButton>
+            )}
+        </>
+      }
+      middle={<></>}
+      bottom={
+        <>
+          {isAdmin && (
+            <SidebarButton
+              href="/users"
+              iconName="Users"
+              isHighlighted={router.pathname === "/users"}
+              badgeCount={pendingUsersCount}
+            >
+              Users
             </SidebarButton>
-          </div>
-        </div>
-      </div>
-    </MainLayout>
+          )}
+          <SidebarButton iconName="LogOut" isHighlighted={false} onClick={() => logout({ pb })}>
+            Log Out
+          </SidebarButton>
+        </>
+      }
+    />
   );
 }
