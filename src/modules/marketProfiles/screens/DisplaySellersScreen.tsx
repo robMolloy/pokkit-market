@@ -5,6 +5,7 @@ import { CardTitle } from "@/components/ui/card";
 import { pb } from "@/config/pocketbaseConfig";
 import { MainLayout } from "@/components/layout/Layout";
 import { H1 } from "@/components/ui/defaultComponents";
+import Link from "next/link";
 
 export const DisplaySellersScreen = () => {
   const marketSellerProfileRecordsStore = useMarketSellerProfileRecordsStore();
@@ -13,15 +14,16 @@ export const DisplaySellersScreen = () => {
       <H1>Sellers</H1>
       <DefaultGrid>
         {marketSellerProfileRecordsStore.data?.map((x) => (
-          <DefaultCard
-            key={x.id}
-            imageUrl={pb.files.getURL(x, x.imageUrl)}
-            imageAlt=""
-            header={<CardTitle>{x.name}</CardTitle>}
-            onClick={() => {}}
-          >
-            {x.name}
-          </DefaultCard>
+          <Link href={`/sellers/${x.userId}`} key={x.id}>
+            <DefaultCard
+              imageUrl={pb.files.getURL(x, x.imageUrl)}
+              imageAlt=""
+              header={<CardTitle>{x.name}</CardTitle>}
+              onClick={() => {}}
+            >
+              {x.name}
+            </DefaultCard>
+          </Link>
         ))}
       </DefaultGrid>
     </MainLayout>

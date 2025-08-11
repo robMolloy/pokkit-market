@@ -15,6 +15,8 @@ import { useMarketSellerProfileRecordsStore } from "@/modules/marketProfiles/mar
 import { useMarketSellerProfileRecordStore } from "@/modules/marketProfiles/marketSellerProfileRecordStore";
 import { BuyerOnboardingScreen } from "@/modules/marketProfiles/screens/BuyerOnboardingScreen";
 import { SellerOnboardingScreen } from "@/modules/marketProfiles/screens/SellerOnboardingScreen";
+import { smartSubscribeToMessengerMessageRecords } from "@/modules/messengerMessages/dbMessengerMessagesUtils";
+import { useMessengerMessageRecordsStore } from "@/modules/messengerMessages/messengerMessagesStore";
 import { smartSubscribeToUsers, subscribeToUser, TUser } from "@/modules/users/dbUsersUtils";
 import { useUsersStore } from "@/modules/users/usersStore";
 import { AwaitingApprovalScreen } from "@/screens/AwaitingApprovalScreen";
@@ -87,6 +89,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const marketBuyerProfileRecordsStore = useMarketBuyerProfileRecordsStore();
   const marketSellerProfileRecordStore = useMarketSellerProfileRecordStore();
   const marketSellerProfileRecordsStore = useMarketSellerProfileRecordsStore();
+  const messengerMessageRecordsStore = useMessengerMessageRecordsStore();
 
   themeStore.useThemeStoreSideEffect();
 
@@ -115,6 +118,11 @@ export default function App({ Component, pageProps }: AppProps) {
         id: user.id,
         onChange: (x) => marketSellerProfileRecordStore.setData(x),
         onError: () => marketSellerProfileRecordStore.setData(null),
+      });
+      smartSubscribeToMessengerMessageRecords({
+        pb,
+        onChange: (x) => messengerMessageRecordsStore.setData(x),
+        onError: () => {},
       });
     },
     onIsLoggedOut: () => {},
