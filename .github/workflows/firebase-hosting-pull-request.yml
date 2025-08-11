@@ -21,3 +21,4 @@ jobs:
           projectId: pokkit-market
         env:
           FIREBASE_CLI_EXPERIMENTS: webframeworks
+          NEXT_PUBLIC_POCKETBASE_URL: https://pokkit-realtime-chat.pockethost.io/
