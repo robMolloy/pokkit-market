@@ -35,18 +35,6 @@ export const DisplaySellersScreen = () => {
             </DefaultGrid>
           );
         })()}
-        {marketSellerProfileRecordsStore.data?.map((x) => (
-          <Link href={`/sellers/${x.userId}`} key={x.id}>
-            <DefaultCard
-              imageUrl={pb.files.getURL(x, x.imageUrl)}
-              imageAlt=""
-              header={<CardTitle>{x.name}</CardTitle>}
-              onClick={() => {}}
-            >
-              {x.name}
-            </DefaultCard>
-          </Link>
-        ))}
       </DefaultGrid>
     </MainLayout>
   );
