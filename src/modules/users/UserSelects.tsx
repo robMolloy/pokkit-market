@@ -1,5 +1,4 @@
 import { CustomIcon } from "@/components/CustomIcon";
-import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -7,8 +6,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TUser } from "@/modules/users/dbUsersUtils";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const statusColorClassMap: { [k in TUser["status"]]: string } = {
   pending: "bg-muted",
@@ -64,52 +64,35 @@ export const UserRoleSelect = (p: {
   );
 };
 
-function ClickableCard(p: { children: React.ReactNode; onClick: () => void; isSelected: boolean }) {
-  return (
-    <Card
-      className={`h-20 cursor-pointer transition-all duration-200 hover:border-4 hover:bg-secondary ${
-        p.isSelected ? "border-2 bg-secondary/75" : ""
-      }`}
-      onClick={p.onClick}
-    >
-      <div className="flex h-full items-center justify-center">{p.children}</div>
-    </Card>
-  );
-}
-
 export const RolePicker = (p: {
   value: TUser["role"];
   onChange: (x: Pick<TUser, "role">) => void;
 }) => {
-  const [selectedRole, setSelectedRole] = useState<TUser["role"]>(p.value);
+  const [innerValue, setInnerValue] = useState<TUser["role"]>(p.value ?? "buyer");
 
-  useEffect(() => p.onChange({ role: selectedRole }), [selectedRole]);
-  useEffect(() => setSelectedRole(p.value), [p.value]);
+  useEffect(() => p.onChange({ role: innerValue }), [innerValue]);
+  useEffect(() => setInnerValue(p.value), [p.value]);
 
   return (
-    <div className="flex gap-4">
-      <div className="flex-1">
-        <ClickableCard
-          onClick={() => setSelectedRole("buyer")}
-          isSelected={selectedRole === "buyer"}
+    <Tabs defaultValue="signin" className="w-full">
+      <TabsList className="grid w-full grid-cols-2 gap-1">
+        <TabsTrigger
+          value="signin"
+          onClick={() => setInnerValue("buyer")}
+          className="flex gap-2 py-4"
         >
-          <div className="flex gap-2">
-            <CustomIcon iconName="HelpCircle" size="lg" />
-            <div>buyer</div>
-          </div>
-        </ClickableCard>
-      </div>
-      <div className="flex-1">
-        <ClickableCard
-          onClick={() => setSelectedRole("seller")}
-          isSelected={selectedRole === "seller"}
+          <CustomIcon iconName="Stethoscope" size="lg" />
+          Buyer
+        </TabsTrigger>
+        <TabsTrigger
+          value="signup"
+          onClick={() => setInnerValue("seller")}
+          className="flex gap-2 py-4"
         >
-          <div className="flex gap-2">
-            <CustomIcon iconName="Stethoscope" size="lg" />
-            <div>seller</div>
-          </div>
-        </ClickableCard>
-      </div>
-    </div>
+          <CustomIcon iconName="HelpCircle" size="lg" />
+          Seller
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
   );
 };
