@@ -79,6 +79,7 @@ export const RolePicker = (p: {
         <TabsTrigger
           value="signin"
           onClick={() => setInnerValue("buyer")}
+          onFocus={() => setInnerValue("buyer")}
           className="flex gap-2 py-4"
         >
           <CustomIcon iconName="Stethoscope" size="lg" />
@@ -87,6 +88,7 @@ export const RolePicker = (p: {
         <TabsTrigger
           value="signup"
           onClick={() => setInnerValue("seller")}
+          onFocus={() => setInnerValue("seller")}
           className="flex gap-2 py-4"
         >
           <CustomIcon iconName="HelpCircle" size="lg" />
