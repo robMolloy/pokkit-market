@@ -11,6 +11,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 export const DatePicker = (p: {
   value: Date | undefined;
   onChange: (x: Date | undefined) => void;
+  placeholder?: string;
+  id?: string;
 }) => {
   const [open, setOpen] = React.useState(false);
   const [innerValue, setInnerValue] = React.useState<Date | undefined>(p.value);
@@ -21,8 +23,10 @@ export const DatePicker = (p: {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" id="date" className="w-full justify-between font-normal">
-          {innerValue ? innerValue.toLocaleDateString() : "Select date"}
+        <Button variant="outline" id={p.id} className="w-full justify-between font-normal">
+          <div className={innerValue ? "" : "text-muted-foreground"}>
+            {innerValue ? innerValue.toLocaleDateString() : p.placeholder}
+          </div>
           <ChevronDownIcon />
         </Button>
       </PopoverTrigger>
