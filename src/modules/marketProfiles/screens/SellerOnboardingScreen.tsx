@@ -1,9 +1,10 @@
 import { MainLayout } from "@/components/layout/Layout";
+import { StepProgress } from "@/components/StepProgress";
 import { H1 } from "@/components/ui/defaultComponents";
 import { TUser } from "@/modules/users/dbUsersUtils";
-import { StepProgress } from "@/components/StepProgress";
-import { SellerOnboardingIdentityAndCredentialsValidationForm } from "../SellerOnboardingIdentityAndCredentialsValidationForm";
 import { useState } from "react";
+import { SellerOnboardingIdentityAndCredentialsValidationForm } from "../SellerOnboardingIdentityAndCredentialsValidationForm";
+import { SellerOnboardingProfessionalProfileForm } from "../SellerOnboardingProfessionalProfileForm";
 
 const steps = [
   { label: "Verification" },
@@ -24,6 +25,7 @@ export const SellerOnboardingScreen = (p: { user: TUser }) => {
       <br />
 
       {stepNumber === 0 && <SellerOnboardingIdentityAndCredentialsValidationForm user={p.user} />}
+      {stepNumber === 1 && <SellerOnboardingProfessionalProfileForm />}
 
       <button onClick={() => setStepNumber(stepNumber + 1)}>next</button>
       <button onClick={() => setStepNumber(0)}>reset</button>
