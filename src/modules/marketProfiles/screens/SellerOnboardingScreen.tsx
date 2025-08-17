@@ -5,6 +5,7 @@ import { TUser } from "@/modules/users/dbUsersUtils";
 import { useState } from "react";
 import { SellerOnboardingIdentityAndCredentialsValidationForm } from "../SellerOnboardingIdentityAndCredentialsValidationForm";
 import { SellerOnboardingProfessionalProfileForm } from "../SellerOnboardingProfessionalProfileForm";
+import { SellerOnboardingPreferencesForm } from "../SellerOnboardingPreferencesForm";
 
 const steps = [
   { label: "Verification" },
@@ -26,6 +27,7 @@ export const SellerOnboardingScreen = (p: { user: TUser }) => {
 
       {stepNumber === 0 && <SellerOnboardingIdentityAndCredentialsValidationForm user={p.user} />}
       {stepNumber === 1 && <SellerOnboardingProfessionalProfileForm />}
+      {stepNumber === 2 && <SellerOnboardingPreferencesForm />}
 
       <button onClick={() => setStepNumber(stepNumber + 1)}>next</button>
       <button onClick={() => setStepNumber(0)}>reset</button>
