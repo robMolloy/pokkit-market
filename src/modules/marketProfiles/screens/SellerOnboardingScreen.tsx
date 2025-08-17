@@ -6,11 +6,11 @@ import { SellerOnboardingIdentityAndCredentialsValidationForm } from "../SellerO
 import { useState } from "react";
 
 const steps = [
-  { label: "Personal Info" },
-  { label: "Address" },
-  { label: "Payment" },
-  { label: "Review" },
-  { label: "Complete" },
+  { label: "Verification" },
+  { label: "Profile" },
+  { label: "Preferences" },
+  { label: "Onboarding Call" },
+  { label: "Readiness" },
 ];
 
 export const SellerOnboardingScreen = (p: { user: TUser }) => {
@@ -19,9 +19,14 @@ export const SellerOnboardingScreen = (p: { user: TUser }) => {
   return (
     <MainLayout>
       <H1>Seller</H1>
+      <br />
       <StepProgress value={stepNumber} onChange={(x) => setStepNumber(x)} steps={steps} />
+      <br />
 
-      <SellerOnboardingIdentityAndCredentialsValidationForm user={p.user} />
+      {stepNumber === 0 && <SellerOnboardingIdentityAndCredentialsValidationForm user={p.user} />}
+
+      <button onClick={() => setStepNumber(stepNumber + 1)}>next</button>
+      <button onClick={() => setStepNumber(0)}>reset</button>
     </MainLayout>
   );
 };
