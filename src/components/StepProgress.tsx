@@ -7,63 +7,51 @@ const statusClassesMap = {
   upcoming: `bg-background `,
 };
 
-export const StepProgress = (p: { steps: { label: string }[] }) => {
-  const [currentStep, setCurrentStep] = useState(0);
+export const StepProgress = (p: {
+  value: number;
+  onChange: (x: number) => void;
+  steps: { label: string }[];
+}) => {
+  const [innerValue, setInnerValue] = useState(0);
+
+  React.useEffect(() => p.onChange(innerValue), [innerValue]);
+  React.useEffect(() => setInnerValue(p.value), [p.value]);
 
   return (
-    <>
-      <div className="flex items-center">
-        {p.steps.map((step, index) => {
-          const status: keyof typeof statusClassesMap =
-            currentStep === index ? "current" : index < currentStep ? "completed" : "upcoming";
+    <div className="flex items-center border p-4">
+      {p.steps.map((step, index) => {
+        const status: keyof typeof statusClassesMap =
+          innerValue === index ? "current" : index < innerValue ? "completed" : "upcoming";
 
-          return (
-            <React.Fragment key={step.label}>
-              <div className="flex flex-col items-center">
-                <div
-                  className={`"relative duration-200" flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all ${statusClassesMap[status]}`}
-                >
-                  {status === "completed" ? (
-                    <Check className="h-5 w-5" />
-                  ) : (
-                    <span>{index + 1}</span>
-                  )}
-                </div>
-                {/* <span
-                  className={`mt-2 text-xs font-medium ${
-                    { completed: "", current: "", upcoming: "text-muted-foreground" }[status]
-                  }`}
+        return (
+          <React.Fragment key={step.label}>
+            <div className="relative flex flex-col items-center">
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-200 ${statusClassesMap[status]}`}
+              >
+                {status === "completed" ? <Check className="h-5 w-5" /> : <span>{index + 1}</span>}
+                <span
+                  className={`absolute whitespace-nowrap text-center text-xs font-medium ${{ completed: "", current: "", upcoming: "text-muted-foreground" }[status]}`}
+                  style={{
+                    bottom: "0",
+                    left: "50%",
+                    transform: "translate(-50%, 100%)",
+                  }}
                 >
                   {step.label}
-                </span> */}
+                </span>
               </div>
-              {index < p.steps.length - 1 && (
-                <div
-                  className={`h-0.5 flex-1 transition-colors duration-200 ${
-                    status === "completed" ? "bg-primary" : "bg-primary/25"
-                  }`}
-                />
-              )}
-            </React.Fragment>
-          );
-        })}
-      </div>
-      <div className="flex justify-center gap-4">
-        <button
-          onClick={() => setCurrentStep(currentStep + 1)}
-          disabled={currentStep >= p.steps.length}
-          className="rounded-lg bg-blue-500 px-6 py-2 text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Complete Current Step
-        </button>
-
-        <button
-          onClick={() => setCurrentStep(0)}
-          className="rounded-lg bg-gray-500 px-6 py-2 text-white transition-colors hover:bg-gray-600"
-        >
-          Reset Progress
-        </button>
-      </div>
-    </>
+            </div>
+            {index < p.steps.length - 1 && (
+              <div
+                className={`h-0.5 flex-1 transition-colors duration-200 ${
+                  status === "completed" ? "bg-primary" : "bg-primary/25"
+                }`}
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
   );
 };
