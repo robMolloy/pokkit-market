@@ -13,6 +13,7 @@ export const DatePicker = (p: {
   onChange: (x: Date | undefined) => void;
   placeholder?: string;
   id?: string;
+  disabled?: React.ComponentProps<typeof Calendar>["disabled"];
 }) => {
   const [open, setOpen] = React.useState(false);
   const [innerValue, setInnerValue] = React.useState<Date | undefined>(p.value);
@@ -32,6 +33,7 @@ export const DatePicker = (p: {
       </PopoverTrigger>
       <PopoverContent className="w-auto overflow-hidden p-0" align="start">
         <Calendar
+          disabled={p.disabled}
           mode="single"
           selected={innerValue}
           captionLayout="dropdown"
