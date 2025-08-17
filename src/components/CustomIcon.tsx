@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import {
+  CheckCircle,
   Mail,
   Stethoscope,
   Ban,
@@ -44,6 +45,7 @@ import {
 } from "lucide-react";
 
 const iconMap = {
+  CheckCircle,
   Mail,
   HelpCircle,
   Stethoscope,
