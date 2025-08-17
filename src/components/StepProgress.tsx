@@ -18,7 +18,7 @@ export const StepProgress = (p: {
   React.useEffect(() => setInnerValue(p.value), [p.value]);
 
   return (
-    <div className="flex items-center border p-4">
+    <div className="flex items-center border px-4 pb-4">
       {p.steps.map((step, index) => {
         const status: keyof typeof statusClassesMap =
           innerValue === index ? "current" : index < innerValue ? "completed" : "upcoming";
@@ -30,17 +30,17 @@ export const StepProgress = (p: {
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-200 ${statusClassesMap[status]}`}
               >
                 {status === "completed" ? <Check className="h-5 w-5" /> : <span>{index + 1}</span>}
-                <span
-                  className={`absolute whitespace-nowrap text-center text-xs font-medium ${{ completed: "", current: "", upcoming: "text-muted-foreground" }[status]}`}
-                  style={{
-                    bottom: "0",
-                    left: "50%",
-                    transform: "translate(-50%, 100%)",
-                  }}
-                >
-                  {step.label}
-                </span>
               </div>
+              <span
+                className={`absolute whitespace-nowrap text-center text-xs font-medium ${{ completed: "", current: "", upcoming: "text-muted-foreground" }[status]}`}
+                style={{
+                  bottom: "0",
+                  left: "50%",
+                  transform: "translate(-50%, 100%)",
+                }}
+              >
+                {step.label}
+              </span>
             </div>
             {index < p.steps.length - 1 && (
               <div
