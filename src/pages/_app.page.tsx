@@ -158,8 +158,8 @@ export default function App({ Component, pageProps }: AppProps) {
 
           if (currentUserStore.data.user.role === "seller") {
             if (marketSellerProfileRecordStore.data === undefined) return <LoadingScreen />;
-            if (marketSellerProfileRecordStore.data === null)
-              return <SellerOnboardingScreen user={currentUserStore.data.user} />;
+
+            return <SellerOnboardingScreen user={currentUserStore.data.user} />;
           }
           if (currentUserStore.data.user.role === "buyer") {
             if (marketBuyerProfileRecordStore.data === undefined) return <LoadingScreen />;

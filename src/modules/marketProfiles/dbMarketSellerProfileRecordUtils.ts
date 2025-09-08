@@ -1,32 +1,56 @@
 import { z } from "zod";
 import PocketBase from "pocketbase";
 
-const marketSellerProfileRecordSchema = z.object({
-  collectionId: z.string(),
-  collectionName: z.string(),
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  imageUrl: z.string(),
-  userId: z.string(),
-  created: z.string(),
-  updated: z.string(),
-});
+const marketSellerProfileRecordSchema = z
+  .object({
+    collectionId: z.string(),
+    collectionName: z.string(),
+    id: z.string(),
+    name: z.string(),
+    userId: z.string(),
+    dateOfBirth: z.string(),
+    countryOfRegistration: z.enum([
+      "United Kingdom",
+      "Ireland",
+      "Other (EU)",
+      "Other (Outside EU)",
+      "",
+    ]),
+    professionalBody: z.string(),
+    registrationNumber: z.string(),
+    identityDocumentFileUrl: z.string(),
+    clinicalSafetyCertificateFileUrl: z.string(),
+    created: z.string(),
+    updated: z.string(),
+  })
+  .partial();
 export type TMarketSellerProfileRecord = z.infer<typeof marketSellerProfileRecordSchema>;
-export type TMarketSellerProfileRecordFormData = Omit<
-  TMarketSellerProfileRecord,
-  "collectionId" | "collectionName" | "imageUrl" | "created" | "updated"
-> & { image: File };
+export type TMarketSellerProfileRecordCreateFormData = Partial<
+  Omit<
+    TMarketSellerProfileRecord,
+    | "collectionId"
+    | "collectionName"
+    | "identityDocumentFileUrl"
+    | "clinicalSafetyCertificateFileUrl"
+    | "created"
+    | "updated"
+  > & {
+    identityDocumentFileUrl?: File;
+    clinicalSafetyCertificateFileUrl?: File;
+  }
+>;
+export type TMarketSellerProfileRecordUpdateFormData = TMarketSellerProfileRecordCreateFormData & {
+  id: string;
+};
 
 const collectionName = "marketSellerProfiles";
 
 export const createMarketSellerProfileRecord = async (p: {
   pb: PocketBase;
-  data: TMarketSellerProfileRecordFormData;
+  data: TMarketSellerProfileRecordCreateFormData;
 }) => {
   try {
-    const { image: imageUrl, ...data } = p.data;
-    const resp = await p.pb.collection(collectionName).create({ imageUrl, ...data });
+    const resp = await p.pb.collection(collectionName).create(p.data);
     return marketSellerProfileRecordSchema.safeParse(resp);
   } catch (error) {
     console.error(error);
@@ -35,11 +59,10 @@ export const createMarketSellerProfileRecord = async (p: {
 };
 export const updateMarketSellerProfileRecord = async (p: {
   pb: PocketBase;
-  data: TMarketSellerProfileRecordFormData;
+  data: TMarketSellerProfileRecordUpdateFormData;
 }) => {
   try {
-    const { image: imageUrl, ...data } = p.data;
-    const resp = await p.pb.collection(collectionName).update(p.data.id, { imageUrl, ...data });
+    const resp = await p.pb.collection(collectionName).update(p.data.id, p.data);
     return marketSellerProfileRecordSchema.safeParse(resp);
   } catch (error) {
     console.error(error);
@@ -62,8 +85,16 @@ export const listMarketSellerProfileRecords = async (p: { pb: PocketBase }) => {
 export const getMarketSellerProfileRecordById = async (p: { pb: PocketBase; id: string }) => {
   try {
     const initData = await p.pb.collection(collectionName).getOne(p.id);
+    console.log(`src/modules/marketProfiles/dbMarketSellerProfileRecordUtils.ts:${/*LL*/ 87}`, {
+      id: p.id,
+      initData,
+    });
 
-    return marketSellerProfileRecordSchema.safeParse(initData);
+    const rtn = marketSellerProfileRecordSchema.safeParse(initData);
+    console.log(`src/modules/marketProfiles/dbMarketSellerProfileRecordUtils.ts:${/*LL*/ 93}`, {
+      rtn,
+    });
+    return rtn;
   } catch (error) {
     return { success: false, error } as const;
   }
@@ -99,6 +130,10 @@ export const smartSubscribeToMarketSellerProfileRecord = async (p: {
   onError: () => void;
 }) => {
   const resp = await getMarketSellerProfileRecordById(p);
+  console.log(`src/modules/marketProfiles/dbMarketSellerProfileRecordUtils.ts:${/*LL*/ 117}`, {
+    p,
+    resp,
+  });
 
   p.onChange(resp.success ? resp.data : null);
 

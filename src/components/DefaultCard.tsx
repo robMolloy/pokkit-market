@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader } from "./ui/card";
 
 export const DefaultCard = (p: {
   onClick: () => void;
-  imageUrl: string;
-  imageAlt: string;
+  imageUrl?: string;
+  imageAlt?: string;
   header: React.ReactNode;
   children: React.ReactNode;
 }) => {

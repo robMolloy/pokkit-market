@@ -5,26 +5,51 @@ import { FileInputDrop, TextInput } from "@/components/ui/input";
 import { DatePicker } from "@/components/DatePicker";
 import { H1 } from "@/components/ui/defaultComponents";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { pb } from "@/config/pocketbaseConfig";
 import { useState } from "react";
+import { toast } from "sonner";
 import { TUser } from "../users/dbUsersUtils";
+import {
+  createMarketSellerProfileRecord,
+  TMarketSellerProfileRecord,
+  updateMarketSellerProfileRecord,
+} from "./dbMarketSellerProfileRecordUtils";
 
 const FormSection = (p: { children: React.ReactNode }) => {
   return <div className="rounded-lg border p-4">{p.children}</div>;
 };
+
 const FormInputRowCollapse = (p: { children: React.ReactNode }) => {
   return (
     <div className="flex flex-col items-stretch gap-4 md:flex-row md:*:flex-1">{p.children}</div>
   );
 };
 
-export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: { user: TUser }) => {
-  const [name, setName] = useState("");
-  // const [description, setDescription] = useState("");
-  // const [image, setImage] = useState<File | undefined>(undefined);
-  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
-  const [countryOfRegistration, setCountryOfRegistration] = useState("");
-  const [identityDocumentFile, setIdentityDocumentFile] = useState<File | undefined>(undefined);
-  const [clinicalSafetyCertificateFile, setClinicalSafetyCertificateFile] = useState<
+export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
+  user: TUser;
+  marketSellerProfileRecord: TMarketSellerProfileRecord | null;
+  onSuccess: () => void;
+}) => {
+  const [name, setName] = useState(p.marketSellerProfileRecord?.name ?? "");
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(
+    p.marketSellerProfileRecord?.dateOfBirth
+      ? new Date(p.marketSellerProfileRecord.dateOfBirth)
+      : undefined,
+  );
+  const [countryOfRegistration, setCountryOfRegistration] = useState<
+    TMarketSellerProfileRecord["countryOfRegistration"] | undefined
+  >(p.marketSellerProfileRecord?.countryOfRegistration);
+  const [identityDocumentFileUrl, setIdentityDocumentFileUrl] = useState<File | undefined>(
+    undefined,
+  );
+  const [clinicalSafetyCertificateFileUrl, setClinicalSafetyCertificateFileUrl] = useState<
     File | undefined
   >(undefined);
   const [professionalBody, setProfessionalBody] = useState("");
@@ -43,23 +68,28 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: { user: 
         <form
           onSubmit={async (e) => {
             e.preventDefault();
-            console.log(`SellerOnboardingIdentityAndCredentialsValidationForm.tsx:${/*LL*/ 46}`, {
-              p,
-            });
 
-            // const resp = await (() => {
-            //   if (!image) return { success: false } as const;
-            //   const data = { id: p.user.id, name, description, image, userId: p.user.id };
-            //   return createMarketSellerProfileRecord({ pb, data });
-            // })();
-            // console.log(`SellerOnboardingForm.tsx:${/*LL*/ 29}`, resp);
+            const resp = await (() => {
+              const data = {
+                id: p.user.id,
+                userId: p.user.id,
+                name,
+                dateOfBirth: dateOfBirth?.toISOString(),
+                countryOfRegistration,
+                professionalBody,
+                registrationNumber,
+                identityDocumentFileUrl,
+                clinicalSafetyCertificateFileUrl,
+              };
+              const exists = !!p.marketSellerProfileRecord?.id;
+              const fn = exists ? updateMarketSellerProfileRecord : createMarketSellerProfileRecord;
+              return fn({ pb, data });
+            })();
 
-            // toast(
-            //   resp.success
-            //     ? "Successfully submitted your seller profile!"
-            //     : "Something went wrong!",
-            //   { duration: 10_000 },
-            // );
+            if (!resp.success) return toast("Something went wrong!", { duration: 10_000 });
+
+            toast("Successfully submitted your seller profile!", { duration: 10_000 });
+            p.onSuccess();
           }}
         >
           <div className="flex flex-col gap-4">
@@ -92,12 +122,23 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: { user: 
                     Country of Registration
                   </Label>
 
-                  <TextInput
-                    id="seller-countryOfRegistration-input"
-                    placeholder="Select your country of professional registration"
+                  <Select
                     value={countryOfRegistration}
-                    onInput={(x) => setCountryOfRegistration(x)}
-                  />
+                    onValueChange={(initValue) => {
+                      const value = initValue as typeof countryOfRegistration;
+                      setCountryOfRegistration(value);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Country of registration" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                      <SelectItem value="Ireland">Ireland</SelectItem>
+                      <SelectItem value="Other (EU)">Other (EU)</SelectItem>
+                      <SelectItem value="Other (Outside EU)">Other (Outside EU)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </FormSection>
@@ -107,12 +148,21 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: { user: 
                 <FormInputRowCollapse>
                   <div>
                     <Label htmlFor="seller-professionalBody-input">Professional Body</Label>
-                    <TextInput
-                      id="seller-professionalBody-input"
-                      placeholder="Select registration type"
-                      value={professionalBody}
-                      onInput={(x) => setProfessionalBody(x)}
-                    />
+
+                    <Select value={professionalBody} onValueChange={(x) => setProfessionalBody(x)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Professional body" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="GMC">United Kingdom</SelectItem>
+                        <SelectItem value="NMC">NMC (Nursing & Midwifery Council)</SelectItem>
+                        <SelectItem value="HCPC">
+                          HCPC (Health & Care Professions Council)
+                        </SelectItem>
+                        <SelectItem value="GPhC">GPhC (General Pharmaceutical Council)</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label htmlFor="seller-registrationNumber-input">Registration Number</Label>
@@ -133,8 +183,8 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: { user: 
                   Identity Document (Required)
                   <FileInputDrop
                     id="seller-identityDocument-input"
-                    value={identityDocumentFile}
-                    onInput={setIdentityDocumentFile}
+                    value={identityDocumentFileUrl}
+                    onInput={setIdentityDocumentFileUrl}
                   >
                     Add document or image
                   </FileInputDrop>
@@ -143,8 +193,8 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: { user: 
                   Clinical Safety Certificate (Required)
                   <FileInputDrop
                     id="seller-clinicalSafetyCertificate-input"
-                    value={clinicalSafetyCertificateFile}
-                    onInput={setClinicalSafetyCertificateFile}
+                    value={clinicalSafetyCertificateFileUrl}
+                    onInput={setClinicalSafetyCertificateFileUrl}
                   >
                     Add document or image
                   </FileInputDrop>

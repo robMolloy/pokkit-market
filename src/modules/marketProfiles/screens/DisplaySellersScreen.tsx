@@ -9,6 +9,7 @@ import Link from "next/link";
 
 export const DisplaySellersScreen = () => {
   const marketSellerProfileRecordsStore = useMarketSellerProfileRecordsStore();
+
   return (
     <MainLayout>
       <H1>Sellers</H1>
@@ -23,7 +24,12 @@ export const DisplaySellersScreen = () => {
               {marketSellerProfileRecordsStore.data.map((x) => (
                 <Link href={`/chat/${x.userId}`} key={x.id}>
                   <DefaultCard
-                    imageUrl={pb.files.getURL(x, x.imageUrl)}
+                    // TODO: this should not be exposed
+                    imageUrl={
+                      x.identityDocumentFileUrl
+                        ? pb.files.getURL(x, x.identityDocumentFileUrl)
+                        : undefined
+                    }
                     imageAlt=""
                     header={<CardTitle>{x.name}</CardTitle>}
                     onClick={() => {}}

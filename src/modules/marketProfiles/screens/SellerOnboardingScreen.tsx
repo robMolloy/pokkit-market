@@ -8,6 +8,7 @@ import { SellerOnboardingProfessionalProfileForm } from "../SellerOnboardingProf
 import { SellerOnboardingPreferencesForm } from "../SellerOnboardingPreferencesForm";
 import { SellerOnboardingCallForm } from "../SellerOnboardingCallForm";
 import { SellerOnboardingReadinessForm } from "../SellerOnboardingReadinessForm";
+import { useMarketSellerProfileRecordStore } from "../marketSellerProfileRecordStore";
 
 const steps = [
   { label: "Verification" },
@@ -20,6 +21,8 @@ const steps = [
 export const SellerOnboardingScreen = (p: { user: TUser }) => {
   const [stepNumber, setStepNumber] = useState(0);
 
+  const marketSellerProfileRecordStore = useMarketSellerProfileRecordStore();
+
   return (
     <MainLayout>
       <H1>Seller</H1>
@@ -27,11 +30,21 @@ export const SellerOnboardingScreen = (p: { user: TUser }) => {
       <StepProgress value={stepNumber} onChange={(x) => setStepNumber(x)} steps={steps} />
       <br />
 
-      {stepNumber === 0 && <SellerOnboardingIdentityAndCredentialsValidationForm user={p.user} />}
-      {stepNumber === 1 && <SellerOnboardingProfessionalProfileForm />}
-      {stepNumber === 2 && <SellerOnboardingPreferencesForm />}
-      {stepNumber === 3 && <SellerOnboardingCallForm />}
-      {stepNumber === 4 && <SellerOnboardingReadinessForm />}
+      {(marketSellerProfileRecordStore.data || marketSellerProfileRecordStore.data === null) && (
+        <>
+          {stepNumber === 0 && (
+            <SellerOnboardingIdentityAndCredentialsValidationForm
+              user={p.user}
+              marketSellerProfileRecord={marketSellerProfileRecordStore.data}
+              onSuccess={() => setStepNumber(1)}
+            />
+          )}
+          {stepNumber === 1 && <SellerOnboardingProfessionalProfileForm />}
+          {stepNumber === 2 && <SellerOnboardingPreferencesForm />}
+          {stepNumber === 3 && <SellerOnboardingCallForm />}
+          {stepNumber === 4 && <SellerOnboardingReadinessForm />}
+        </>
+      )}
 
       <button onClick={() => setStepNumber(stepNumber + 1)}>next</button>
       <button onClick={() => setStepNumber(0)}>reset</button>
