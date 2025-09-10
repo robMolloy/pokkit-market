@@ -21,6 +21,7 @@ import {
   TMarketSellerProfileRecord,
   updateMarketSellerProfileRecord,
 } from "./dbMarketSellerProfileRecordUtils";
+import { useFileUrl } from "@/lib/fileUtils";
 
 const FormSection = (p: { children: React.ReactNode }) => {
   return <div className="rounded-lg border p-4">{p.children}</div>;
@@ -46,14 +47,17 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
   const [countryOfRegistration, setCountryOfRegistration] = useState<
     TMarketSellerProfileRecord["countryOfRegistration"] | undefined
   >(p.marketSellerProfileRecord?.countryOfRegistration);
-  const [identityDocumentFileUrl, setIdentityDocumentFileUrl] = useState<File | undefined>(
-    undefined,
-  );
+  const [identityDocumentFile, setIdentityDocumentFile] = useState<File>();
+  const fileUrl = useFileUrl(p.marketSellerProfileRecord?.identityDocumentFileUrl);
   const [clinicalSafetyCertificateFileUrl, setClinicalSafetyCertificateFileUrl] = useState<
     File | undefined
   >(undefined);
-  const [professionalBody, setProfessionalBody] = useState("");
-  const [registrationNumber, setRegistrationNumber] = useState("");
+  const [professionalBody, setProfessionalBody] = useState(
+    p.marketSellerProfileRecord?.professionalBody ?? "",
+  );
+  const [registrationNumber, setRegistrationNumber] = useState(
+    p.marketSellerProfileRecord?.registrationNumber ?? "",
+  );
 
   return (
     <Card>
@@ -65,6 +69,7 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <pre>{JSON.stringify({ x: p.marketSellerProfileRecord }, undefined, 2)}</pre>
         <form
           onSubmit={async (e) => {
             e.preventDefault();
@@ -78,7 +83,7 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
                 countryOfRegistration,
                 professionalBody,
                 registrationNumber,
-                identityDocumentFileUrl,
+                identityDocumentFileUrl: identityDocumentFile,
                 clinicalSafetyCertificateFileUrl,
               };
               const exists = !!p.marketSellerProfileRecord?.id;
@@ -183,8 +188,8 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
                   Identity Document (Required)
                   <FileInputDrop
                     id="seller-identityDocument-input"
-                    value={identityDocumentFileUrl}
-                    onInput={setIdentityDocumentFileUrl}
+                    value={fileUrl}
+                    onInput={setIdentityDocumentFile}
                   >
                     Add document or image
                   </FileInputDrop>

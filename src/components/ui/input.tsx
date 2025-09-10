@@ -124,49 +124,47 @@ export const FileInputDrop = (p: {
   const fileUrl = useFileUrl(innerValue);
 
   return (
-    <>
-      <div
-        onDragEnter={onDragEnter}
-        onDragLeave={onDragLeave}
-        onDragOver={onDragOver}
-        onDrop={onDrop}
-        className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
-          isDragActive ? "bg-secondary" : ""
-        } `}
-      >
-        <input
-          type="file"
-          onChange={(e) => setInnerValue(e.target.files?.[0])}
-          className="hidden"
-          id={p.id}
-        />
-        <div className="cursor-pointer">
-          <div className="mx-auto mb-4 flex items-center justify-center">
-            {fileUrl ? (
-              <div className="relative">
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute right-0 top-0 h-5 w-5 -translate-y-1/2 translate-x-1/2 rounded-full"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setInnerValue(undefined);
-                  }}
-                >
-                  <CustomIcon iconName="X" size="xs" />
-                </Button>
-                <img className="h-24" src={fileUrl} />
-              </div>
-            ) : (
-              <CustomIcon iconName="Image" size="4xl" />
-            )}
-          </div>
-          <br />
-          <div>{isDragActive ? "Drop files here" : "Drop files here or click to browse"}</div>
-          <br />
-          <div>{p.children}</div>
+    <div
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+        isDragActive ? "bg-secondary" : ""
+      } `}
+    >
+      <input
+        type="file"
+        onChange={(e) => setInnerValue(e.target.files?.[0])}
+        className="hidden"
+        id={p.id}
+      />
+      <div className="cursor-pointer">
+        <div className="mx-auto mb-4 flex items-center justify-center">
+          {fileUrl ? (
+            <div className="relative">
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute right-0 top-0 h-5 w-5 -translate-y-1/2 translate-x-1/2 rounded-full"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setInnerValue(undefined);
+                }}
+              >
+                <CustomIcon iconName="X" size="xs" />
+              </Button>
+              <img className="h-24" src={fileUrl} />
+            </div>
+          ) : (
+            <CustomIcon iconName="Image" size="4xl" />
+          )}
         </div>
+        <br />
+        <div>{isDragActive ? "Drop files here" : "Drop files here or click to browse"}</div>
+        <br />
+        <div>{p.children}</div>
       </div>
-    </>
+    </div>
   );
 };

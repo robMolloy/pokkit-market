@@ -85,15 +85,8 @@ export const listMarketSellerProfileRecords = async (p: { pb: PocketBase }) => {
 export const getMarketSellerProfileRecordById = async (p: { pb: PocketBase; id: string }) => {
   try {
     const initData = await p.pb.collection(collectionName).getOne(p.id);
-    console.log(`src/modules/marketProfiles/dbMarketSellerProfileRecordUtils.ts:${/*LL*/ 87}`, {
-      id: p.id,
-      initData,
-    });
 
     const rtn = marketSellerProfileRecordSchema.safeParse(initData);
-    console.log(`src/modules/marketProfiles/dbMarketSellerProfileRecordUtils.ts:${/*LL*/ 93}`, {
-      rtn,
-    });
     return rtn;
   } catch (error) {
     return { success: false, error } as const;
@@ -130,10 +123,6 @@ export const smartSubscribeToMarketSellerProfileRecord = async (p: {
   onError: () => void;
 }) => {
   const resp = await getMarketSellerProfileRecordById(p);
-  console.log(`src/modules/marketProfiles/dbMarketSellerProfileRecordUtils.ts:${/*LL*/ 117}`, {
-    p,
-    resp,
-  });
 
   p.onChange(resp.success ? resp.data : null);
 
