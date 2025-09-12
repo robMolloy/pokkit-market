@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { pb } from "@/config/pocketbaseConfig";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TUser } from "../users/dbUsersUtils";
 import {
@@ -21,7 +21,41 @@ import {
   TMarketSellerProfileRecord,
   updateMarketSellerProfileRecord,
 } from "./dbMarketSellerProfileRecordUtils";
-import { useFileUrl } from "@/lib/fileUtils";
+
+const getFileFromUrl = async (p: { fileUrl: string; fileName: string }) => {
+  try {
+    const response = await fetch(p.fileUrl);
+    if (!response.ok) return { success: false, error: response.statusText as unknown } as const;
+
+    const blob = await response.blob();
+    const file = new File([blob], p.fileName, { type: blob.type, lastModified: Date.now() });
+
+    return { success: true, data: file } as const;
+  } catch (error) {
+    console.error("Error fetching file:", error);
+    throw { success: false, error } as const;
+  }
+};
+
+const useFileFromPbRecordOnMount = (p: {
+  record?: { [key: string]: unknown } | null;
+  fileUrl?: string;
+  onSuccess?: (x: File) => void;
+  onError?: () => void;
+}) => {
+  useEffect(() => {
+    (async () => {
+      const fileUrl = p.fileUrl;
+      if (!fileUrl || !p.record) return;
+      const fileResponse = await getFileFromUrl({
+        fileUrl: pb.files.getURL(p.record, fileUrl),
+        fileName: fileUrl,
+      });
+      if (fileResponse.success) return p.onSuccess?.(fileResponse.data);
+      p.onError?.();
+    })();
+  }, []);
+};
 
 const FormSection = (p: { children: React.ReactNode }) => {
   return <div className="rounded-lg border p-4">{p.children}</div>;
@@ -47,11 +81,21 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
   const [countryOfRegistration, setCountryOfRegistration] = useState<
     TMarketSellerProfileRecord["countryOfRegistration"] | undefined
   >(p.marketSellerProfileRecord?.countryOfRegistration);
+
   const [identityDocumentFile, setIdentityDocumentFile] = useState<File>();
-  const fileUrl = useFileUrl(p.marketSellerProfileRecord?.identityDocumentFileUrl);
-  const [clinicalSafetyCertificateFileUrl, setClinicalSafetyCertificateFileUrl] = useState<
-    File | undefined
-  >(undefined);
+  useFileFromPbRecordOnMount({
+    record: p.marketSellerProfileRecord,
+    fileUrl: p.marketSellerProfileRecord?.identityDocumentFileUrl,
+    onSuccess: (x) => setIdentityDocumentFile(x),
+  });
+
+  const [clinicalSafetyCertificateFile, setClinicalSafetyCertificateFile] = useState<File>();
+  useFileFromPbRecordOnMount({
+    record: p.marketSellerProfileRecord,
+    fileUrl: p.marketSellerProfileRecord?.clinicalSafetyCertificateFileUrl,
+    onSuccess: (x) => setClinicalSafetyCertificateFile(x),
+  });
+
   const [professionalBody, setProfessionalBody] = useState(
     p.marketSellerProfileRecord?.professionalBody ?? "",
   );
@@ -84,7 +128,7 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
                 professionalBody,
                 registrationNumber,
                 identityDocumentFileUrl: identityDocumentFile,
-                clinicalSafetyCertificateFileUrl,
+                clinicalSafetyCertificateFileUrl: clinicalSafetyCertificateFile,
               };
               const exists = !!p.marketSellerProfileRecord?.id;
               const fn = exists ? updateMarketSellerProfileRecord : createMarketSellerProfileRecord;
@@ -188,8 +232,8 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
                   Identity Document (Required)
                   <FileInputDrop
                     id="seller-identityDocument-input"
-                    value={fileUrl}
-                    onInput={setIdentityDocumentFile}
+                    value={identityDocumentFile}
+                    onInput={(x) => setIdentityDocumentFile(x)}
                   >
                     Add document or image
                   </FileInputDrop>
@@ -198,8 +242,8 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
                   Clinical Safety Certificate (Required)
                   <FileInputDrop
                     id="seller-clinicalSafetyCertificate-input"
-                    value={clinicalSafetyCertificateFileUrl}
-                    onInput={setClinicalSafetyCertificateFileUrl}
+                    value={clinicalSafetyCertificateFile}
+                    onInput={(x) => setClinicalSafetyCertificateFile(x)}
                   >
                     Add document or image
                   </FileInputDrop>
