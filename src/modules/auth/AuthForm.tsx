@@ -10,23 +10,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { AuthSignin } from "./AuthSignin";
 import { AuthSignup } from "./AuthSignup";
+import { LogScreen } from "../debug/logScreen";
 
 export function AuthForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const handleAuthResult = (isSuccess: boolean, message: string) => {
-    if (isSuccess) {
-      setSuccess(message);
-      setError(null);
-    } else {
-      setError(message);
-      setSuccess(null);
-    }
-  };
-
   return (
     <Card className="w-[400px]">
+      <LogScreen />
       <CardHeader>
         <CardTitle>Welcome</CardTitle>
         <CardDescription>Sign in to your account or create a new one</CardDescription>
@@ -48,10 +40,28 @@ export function AuthForm() {
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
           <TabsContent value="signin">
-            <AuthSignin onSignIn={handleAuthResult} />
+            <AuthSignin
+              onSignInError={(message) => {
+                setError(message);
+                setSuccess(null);
+              }}
+              onSignInSuccess={(message) => {
+                setSuccess(message);
+                setError(null);
+              }}
+            />
           </TabsContent>
           <TabsContent value="signup">
-            <AuthSignup onSignUp={handleAuthResult} />
+            <AuthSignup
+              onSignUpError={(message) => {
+                setError(message);
+                setSuccess(null);
+              }}
+              onSignUpSuccess={(message) => {
+                setSuccess(message);
+                setError(null);
+              }}
+            />
           </TabsContent>
         </Tabs>
       </CardContent>

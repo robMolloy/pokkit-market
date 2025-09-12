@@ -36,6 +36,7 @@ export const useUnverifiedIsLoggedInSync = (p: { pb: PocketBase }) => {
       if (!p.pb.authStore.isValid) return isLoggedInStore.setData({ authStatus: "loggedOut" });
 
       const resp = pocketbaseAuthStoreSchema.safeParse(p.pb.authStore);
+      console.error(`authDataStore.ts:${/*LL*/ 39}`, { resp, authStore: p.pb.authStore });
       isLoggedInStore.setData(
         resp.success ? { authStatus: "loggedIn", user: resp.data } : { authStatus: "loggedOut" },
       );

@@ -6,11 +6,10 @@ import { useState } from "react";
 import { TUser } from "../users/dbUsersUtils";
 import { RolePicker } from "../users/UserSelects";
 
-interface AuthSignupProps {
-  onSignUp: (success: boolean, message: string) => void;
-}
-
-export function AuthSignup({ onSignUp }: AuthSignupProps) {
+export function AuthSignup(p: {
+  onSignUpSuccess: (message: string) => void;
+  onSignUpError: (message: string) => void;
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [role, setRole] = useState<TUser["role"]>("buyer");
 
@@ -26,29 +25,31 @@ export function AuthSignup({ onSignUp }: AuthSignupProps) {
     const confirmPassword = formData.get("confirm-password") as string;
 
     if (password !== confirmPassword) {
-      onSignUp(false, "Passwords do not match");
+      p.onSignUpError("Passwords do not match");
       setIsLoading(false);
       return;
     }
 
+    const payload = {
+      name,
+      email,
+      status: "pending",
+      role,
+      emailVisibility: true,
+      password,
+      passwordConfirm: password,
+    };
     try {
-      await pb.collection("users").create({
-        name,
-        email,
-        status: "pending",
-        role,
-        emailVisibility: true,
-        password,
-        passwordConfirm: password,
-      });
+      await pb.collection("users").create(payload);
+      console.log(`AuthSignup.tsx:${/*LL*/ 44}`, { payload });
 
       // After creating the user, log them in
       await pb.collection("users").authWithPassword(email, password);
-      onSignUp(true, "Account created successfully!");
+      p.onSignUpSuccess("Account created successfully!");
     } catch (e: unknown) {
       const error = e as { message: string };
       console.error("Sign up error:", error);
-      onSignUp(false, error.message ?? "Failed to create account. Please try again.");
+      p.onSignUpError(error.message ?? "Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
     }
