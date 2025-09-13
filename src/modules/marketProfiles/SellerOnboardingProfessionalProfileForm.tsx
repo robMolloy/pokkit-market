@@ -5,16 +5,46 @@ import { H1 } from "@/components/ui/defaultComponents";
 import { FileInputDrop, TextInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import {
+  createMarketSellerProfileRecord,
+  TMarketSellerProfileRecord,
+  updateMarketSellerProfileRecord,
+} from "./dbMarketSellerProfileRecordUtils";
+import { pb } from "@/config/pocketbaseConfig";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { useFileFromPbRecordOnMount } from "@/lib/fileUtils";
 
-// export const SellerOnboardingProfessionalProfileForm = (p: { user: TUser }) => {
-export const SellerOnboardingProfessionalProfileForm = () => {
-  const [profilePhotoFile, setProfilePhotoFile] = useState<File | undefined>(undefined);
-  const [professionalHeadline, setProfessionalHeadline] = useState("");
-  const [professionalBio, setProfessionalBio] = useState("");
-  const [linkedInProfileUrl, setLinkedInProfileUrl] = useState("");
-  const [areasOfExpertise, setAreasOfExpertise] = useState<string>("");
-  const [yearsOfExperience, setYearsOfExperience] = useState<string>("");
-  const [industriesServed, setIndustriesServed] = useState<string>("");
+export const SellerOnboardingProfessionalProfileForm = (p: {
+  marketSellerProfileRecord: TMarketSellerProfileRecord;
+  onSuccess: () => void;
+}) => {
+  const [profilePhotoFile, setProfilePhotoFile] = useState<File>();
+  useFileFromPbRecordOnMount({
+    pb,
+    record: p.marketSellerProfileRecord,
+    fileUrl: p.marketSellerProfileRecord?.profilePhotoFileUrl,
+    onSuccess: (x) => setProfilePhotoFile(x),
+  });
+
+  const [professionalHeadline, setProfessionalHeadline] = useState(
+    p.marketSellerProfileRecord?.professionalHeadline ?? "",
+  );
+  const [professionalBio, setProfessionalBio] = useState(
+    p.marketSellerProfileRecord?.professionalBio ?? "",
+  );
+  const [linkedInProfileUrl, setLinkedInProfileUrl] = useState(
+    p.marketSellerProfileRecord?.linkedInProfileUrl ?? "",
+  );
+  const [areasOfExpertise, setAreasOfExpertise] = useState(
+    p.marketSellerProfileRecord?.areasOfExpertise ?? "",
+  );
+  const [yearsOfExperience, setYearsOfExperience] = useState(
+    p.marketSellerProfileRecord?.yearsOfExperience ?? "",
+  );
+  const [industriesServed, setIndustriesServed] = useState(
+    p.marketSellerProfileRecord?.industriesServed ?? "",
+  );
 
   return (
     <Card>
@@ -25,7 +55,35 @@ export const SellerOnboardingProfessionalProfileForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-4">
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+
+            const resp = await (() => {
+              const exists = !!p.marketSellerProfileRecord?.id;
+              const fn = exists ? updateMarketSellerProfileRecord : createMarketSellerProfileRecord;
+              return fn({
+                pb,
+                data: {
+                  id: p.marketSellerProfileRecord.id,
+                  profilePhotoFile,
+                  professionalHeadline,
+                  professionalBio,
+                  linkedInProfileUrl,
+                  areasOfExpertise,
+                  yearsOfExperience,
+                  industriesServed,
+                },
+              });
+            })();
+
+            if (!resp.success) return toast("Something went wrong!", { duration: 10_000 });
+
+            toast("Successfully submitted your seller profile!", { duration: 10_000 });
+            p.onSuccess();
+          }}
+          className="flex flex-col gap-4"
+        >
           <FormSection>
             <div className="flex flex-col gap-4">
               <H1>Professional Summary</H1>
@@ -33,6 +91,7 @@ export const SellerOnboardingProfessionalProfileForm = () => {
               <div>
                 <Label htmlFor="seller-professionalHeadline-input">Professional Headline</Label>
                 <TextInput
+                  autoFocus
                   value={professionalHeadline}
                   onInput={(x) => setProfessionalHeadline(x)}
                   id="seller-professionalHeadline-input"
@@ -114,7 +173,10 @@ export const SellerOnboardingProfessionalProfileForm = () => {
               </div>
             </div>
           </FormSection>
-        </div>
+          <div className="flex justify-end">
+            <Button type="submit">Submit</Button>
+          </div>
+        </form>
       </CardContent>
     </Card>
   );

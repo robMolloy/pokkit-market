@@ -5,7 +5,6 @@ const marketSellerProfileRecordSchema = z
   .object({
     collectionId: z.string(),
     collectionName: z.string(),
-    id: z.string(),
     name: z.string(),
     userId: z.string(),
     dateOfBirth: z.string(),
@@ -20,10 +19,18 @@ const marketSellerProfileRecordSchema = z
     registrationNumber: z.string(),
     identityDocumentFileUrl: z.string(),
     clinicalSafetyCertificateFileUrl: z.string(),
+    profilePhotoFileUrl: z.string(),
+    professionalHeadline: z.string(),
+    professionalBio: z.string(),
+    linkedInProfileUrl: z.string(),
+    areasOfExpertise: z.string(),
+    yearsOfExperience: z.string(),
+    industriesServed: z.string(),
     created: z.string(),
     updated: z.string(),
   })
-  .partial();
+  .partial()
+  .extend({ id: z.string() });
 export type TMarketSellerProfileRecord = z.infer<typeof marketSellerProfileRecordSchema>;
 export type TMarketSellerProfileRecordCreateFormData = Partial<
   Omit<
@@ -32,11 +39,13 @@ export type TMarketSellerProfileRecordCreateFormData = Partial<
     | "collectionName"
     | "identityDocumentFileUrl"
     | "clinicalSafetyCertificateFileUrl"
+    | "profilePhotoFileUrl"
     | "created"
     | "updated"
   > & {
     identityDocumentFile?: File;
     clinicalSafetyCertificateFile?: File;
+    profilePhotoFile?: File;
   }
 >;
 export type TMarketSellerProfileRecordUpdateFormData = TMarketSellerProfileRecordCreateFormData & {
@@ -50,12 +59,13 @@ export const createMarketSellerProfileRecord = async (p: {
   data: TMarketSellerProfileRecordCreateFormData;
 }) => {
   try {
-    const { clinicalSafetyCertificateFile, identityDocumentFile, ...rest } = p.data;
-    const resp = await p.pb.collection(collectionName).create({
-      clinicalSafetyCertificateFileUrl: clinicalSafetyCertificateFile,
-      identityDocumentFileUrl: identityDocumentFile,
-      ...rest,
-    });
+    const data: Record<string, unknown> = { ...p.data };
+    if (p.data.clinicalSafetyCertificateFile)
+      data.clinicalSafetyCertificateFileUrl = p.data.clinicalSafetyCertificateFile;
+    if (p.data.identityDocumentFile) data.identityDocumentFileUrl = p.data.identityDocumentFile;
+    if (p.data.profilePhotoFile) data.profilePhotoFileUrl = p.data.profilePhotoFile;
+
+    const resp = await p.pb.collection(collectionName).create(data);
     return marketSellerProfileRecordSchema.safeParse(resp);
   } catch (error) {
     console.error(error);
@@ -67,12 +77,13 @@ export const updateMarketSellerProfileRecord = async (p: {
   data: TMarketSellerProfileRecordUpdateFormData;
 }) => {
   try {
-    const { clinicalSafetyCertificateFile, identityDocumentFile, ...rest } = p.data;
-    const resp = await p.pb.collection(collectionName).update(p.data.id, {
-      clinicalSafetyCertificateFileUrl: clinicalSafetyCertificateFile,
-      identityDocumentFileUrl: identityDocumentFile,
-      ...rest,
-    });
+    const data: Record<string, unknown> = { ...p.data };
+    if (p.data.clinicalSafetyCertificateFile)
+      data.clinicalSafetyCertificateFileUrl = p.data.clinicalSafetyCertificateFile;
+    if (p.data.identityDocumentFile) data.identityDocumentFileUrl = p.data.identityDocumentFile;
+    if (p.data.profilePhotoFile) data.profilePhotoFileUrl = p.data.profilePhotoFile;
+
+    const resp = await p.pb.collection(collectionName).update(p.data.id, data);
     return marketSellerProfileRecordSchema.safeParse(resp);
   } catch (error) {
     console.error(error);

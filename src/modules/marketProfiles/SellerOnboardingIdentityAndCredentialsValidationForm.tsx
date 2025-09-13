@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { pb } from "@/config/pocketbaseConfig";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { TUser } from "../users/dbUsersUtils";
 import {
@@ -21,41 +21,7 @@ import {
   TMarketSellerProfileRecord,
   updateMarketSellerProfileRecord,
 } from "./dbMarketSellerProfileRecordUtils";
-
-const getFileFromUrl = async (p: { fileUrl: string; fileName: string }) => {
-  try {
-    const response = await fetch(p.fileUrl);
-    if (!response.ok) return { success: false, error: response.statusText as unknown } as const;
-
-    const blob = await response.blob();
-    const file = new File([blob], p.fileName, { type: blob.type, lastModified: Date.now() });
-
-    return { success: true, data: file } as const;
-  } catch (error) {
-    console.error("Error fetching file:", error);
-    throw { success: false, error } as const;
-  }
-};
-
-const useFileFromPbRecordOnMount = (p: {
-  record?: { [key: string]: unknown } | null;
-  fileUrl?: string;
-  onSuccess?: (x: File) => void;
-  onError?: () => void;
-}) => {
-  useEffect(() => {
-    (async () => {
-      const fileUrl = p.fileUrl;
-      if (!fileUrl || !p.record) return;
-      const fileResponse = await getFileFromUrl({
-        fileUrl: pb.files.getURL(p.record, fileUrl),
-        fileName: fileUrl,
-      });
-      if (fileResponse.success) return p.onSuccess?.(fileResponse.data);
-      p.onError?.();
-    })();
-  }, []);
-};
+import { useFileFromPbRecordOnMount } from "@/lib/fileUtils";
 
 const FormSection = (p: { children: React.ReactNode }) => {
   return <div className="rounded-lg border p-4">{p.children}</div>;
@@ -84,6 +50,7 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
 
   const [identityDocumentFile, setIdentityDocumentFile] = useState<File>();
   useFileFromPbRecordOnMount({
+    pb,
     record: p.marketSellerProfileRecord,
     fileUrl: p.marketSellerProfileRecord?.identityDocumentFileUrl,
     onSuccess: (x) => setIdentityDocumentFile(x),
@@ -91,6 +58,7 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
 
   const [clinicalSafetyCertificateFile, setClinicalSafetyCertificateFile] = useState<File>();
   useFileFromPbRecordOnMount({
+    pb,
     record: p.marketSellerProfileRecord,
     fileUrl: p.marketSellerProfileRecord?.clinicalSafetyCertificateFileUrl,
     onSuccess: (x) => setClinicalSafetyCertificateFile(x),
