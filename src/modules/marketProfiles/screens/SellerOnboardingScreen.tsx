@@ -46,9 +46,27 @@ export const SellerOnboardingScreen = (p: { user: TUser }) => {
               onSuccess={() => setStepNumber(2)}
             />
           )}
-          {stepNumber === 2 && <SellerOnboardingPreferencesForm />}
-          {stepNumber === 3 && <SellerOnboardingCallForm />}
-          {stepNumber === 4 && <SellerOnboardingReadinessForm />}
+          {stepNumber === 2 && (
+            <SellerOnboardingPreferencesForm
+              user={p.user}
+              marketSellerProfileRecord={marketSellerProfileRecordStore.data}
+              onSuccess={() => setStepNumber(3)}
+            />
+          )}
+          {stepNumber === 3 && (
+            <SellerOnboardingCallForm
+            // user={p.user}
+            // marketSellerProfileRecord={marketSellerProfileRecordStore.data}
+            // onSuccess={() => setStepNumber(2)}
+            />
+          )}
+          {stepNumber === 4 && (
+            <SellerOnboardingReadinessForm
+            // user={p.user}
+            // marketSellerProfileRecord={marketSellerProfileRecordStore.data}
+            // onSuccess={() => setStepNumber(2)}
+            />
+          )}
         </>
       )}
 

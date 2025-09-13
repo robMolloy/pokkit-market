@@ -8,19 +8,47 @@ import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { DatePicker } from "@/components/DatePicker";
 import { Checkbox } from "@/components/ui/checkbox";
+import { TUser } from "../users/dbUsersUtils";
+import {
+  createMarketSellerProfileRecord,
+  TMarketSellerProfileRecord,
+  updateMarketSellerProfileRecord,
+} from "./dbMarketSellerProfileRecordUtils";
+import { Button } from "@/components/ui/button";
+import { pb } from "@/config/pocketbaseConfig";
+import { toast } from "sonner";
 
-// export const SellerOnboardingPreferencesForm = (p: { user: TUser }) => {
-export const SellerOnboardingPreferencesForm = () => {
-  const [preferredOrgTypes, setPreferredOrgTypes] = useState("");
-  const [preferredWorkTypes, setPreferredWorkTypes] = useState("");
-  const [hoursAvailablePerWeek, setHoursAvailablePerWeek] = useState(5);
-  const [earliestStartDate, setEarliestStartDate] = useState<Date | undefined>(undefined);
-  const [travelWillingness, setTravelWillingness] = useState("");
-  const [flexibleSchedule, setFlexibleSchedule] = useState(false);
-  const [dayRate, setDayRate] = useState("");
-  const [hourlyRate, setHourlyRate] = useState("");
-  const [acceptNdas, setAcceptNdas] = useState(false);
-  const [acceptWorkFromHome, setAcceptWorkFromHome] = useState(false);
+export const SellerOnboardingPreferencesForm = (p: {
+  user: TUser;
+  marketSellerProfileRecord: TMarketSellerProfileRecord | null;
+  onSuccess: () => void;
+}) => {
+  const [preferredOrgTypes, setPreferredOrgTypes] = useState(
+    p.marketSellerProfileRecord?.preferredOrgTypes ?? "",
+  );
+  const [preferredWorkTypes, setPreferredWorkTypes] = useState(
+    p.marketSellerProfileRecord?.preferredWorkTypes ?? "",
+  );
+  const [hoursAvailablePerWeek, setHoursAvailablePerWeek] = useState(
+    p.marketSellerProfileRecord?.hoursAvailablePerWeek ?? 5,
+  );
+  const [earliestStartDate, setEarliestStartDate] = useState<Date | undefined>(
+    p.marketSellerProfileRecord?.earliestStartDate
+      ? new Date(p.marketSellerProfileRecord.earliestStartDate)
+      : undefined,
+  );
+  const [travelWillingness, setTravelWillingness] = useState(
+    p.marketSellerProfileRecord?.travelWillingness ?? "",
+  );
+  const [flexibleSchedule, setFlexibleSchedule] = useState(
+    p.marketSellerProfileRecord?.flexibleSchedule ?? false,
+  );
+  const [dayRate, setDayRate] = useState(p.marketSellerProfileRecord?.dayRate ?? "");
+  const [hourlyRate, setHourlyRate] = useState(p.marketSellerProfileRecord?.hourlyRate ?? "");
+  const [acceptNdas, setAcceptNdas] = useState(p.marketSellerProfileRecord?.acceptNdas ?? false);
+  const [acceptWorkFromHome, setAcceptWorkFromHome] = useState(
+    p.marketSellerProfileRecord?.acceptWorkFromHome ?? false,
+  );
 
   return (
     <Card>
@@ -31,7 +59,38 @@ export const SellerOnboardingPreferencesForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-4">
+        <form
+          className="flex flex-col gap-4"
+          onSubmit={async (e) => {
+            e.preventDefault();
+
+            const resp = await (() => {
+              const exists = !!p.marketSellerProfileRecord?.id;
+              const fn = exists ? updateMarketSellerProfileRecord : createMarketSellerProfileRecord;
+              return fn({
+                pb,
+                data: {
+                  id: p.user.id,
+                  preferredOrgTypes,
+                  preferredWorkTypes,
+                  hoursAvailablePerWeek,
+                  earliestStartDate: earliestStartDate?.toISOString(),
+                  travelWillingness,
+                  flexibleSchedule,
+                  dayRate,
+                  hourlyRate,
+                  acceptNdas,
+                  acceptWorkFromHome,
+                },
+              });
+            })();
+
+            if (!resp.success) return toast("Something went wrong!", { duration: 10_000 });
+
+            toast("Successfully submitted your seller profile!", { duration: 10_000 });
+            p.onSuccess();
+          }}
+        >
           <FormSection>
             <div className="flex flex-col gap-4">
               <H1>Industries You Want to Work With</H1>
@@ -174,23 +233,28 @@ export const SellerOnboardingPreferencesForm = () => {
               <H1>Work Preferences</H1>
               <div className="flex items-center gap-2">
                 <Checkbox
-                  id="toggle-2"
+                  id="toggle-acceptNdas"
                   checked={acceptNdas}
                   onCheckedChange={() => setAcceptNdas((x) => !x)}
                 />
-                <Label htmlFor="toggle-2">I'm willing to sign NDAs for confidential projects</Label>
+                <Label htmlFor="toggle-acceptNdas">
+                  I'm willing to sign NDAs for confidential projects
+                </Label>
               </div>
               <div className="flex items-center gap-2">
                 <Checkbox
-                  id="toggle-2"
+                  id="toggle-acceptWorkFromHome"
                   checked={acceptWorkFromHome}
                   onCheckedChange={() => setAcceptWorkFromHome((x) => !x)}
                 />
-                <Label htmlFor="toggle-2">I'm comfortable working remotely</Label>
+                <Label htmlFor="toggle-acceptWorkFromHome">I'm comfortable working remotely</Label>
               </div>
             </div>
           </FormSection>
-        </div>
+          <div className="flex justify-end">
+            <Button type="submit">Submit</Button>
+          </div>
+        </form>
       </CardContent>
     </Card>
   );
