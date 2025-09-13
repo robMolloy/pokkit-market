@@ -154,7 +154,7 @@ export const FileInputDrop = (p: {
               >
                 <CustomIcon iconName="X" size="xs" />
               </Button>
-              <img className="h-24" src={fileUrl} />
+              <img className="h-24" alt="file select input" src={fileUrl} />
             </div>
           ) : (
             <CustomIcon iconName="Image" size="4xl" />
