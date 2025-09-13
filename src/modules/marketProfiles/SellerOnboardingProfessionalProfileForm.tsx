@@ -14,9 +14,11 @@ import { pb } from "@/config/pocketbaseConfig";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useFileFromPbRecordOnMount } from "@/lib/fileUtils";
+import { TUser } from "../users/dbUsersUtils";
 
 export const SellerOnboardingProfessionalProfileForm = (p: {
-  marketSellerProfileRecord: TMarketSellerProfileRecord;
+  user: TUser;
+  marketSellerProfileRecord: TMarketSellerProfileRecord | null;
   onSuccess: () => void;
 }) => {
   const [profilePhotoFile, setProfilePhotoFile] = useState<File>();
@@ -65,7 +67,7 @@ export const SellerOnboardingProfessionalProfileForm = (p: {
               return fn({
                 pb,
                 data: {
-                  id: p.marketSellerProfileRecord.id,
+                  id: p.user.id,
                   profilePhotoFile,
                   professionalHeadline,
                   professionalBio,

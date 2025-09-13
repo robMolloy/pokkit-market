@@ -30,18 +30,18 @@ export const SellerOnboardingScreen = (p: { user: TUser }) => {
       <StepProgress value={stepNumber} onChange={(x) => setStepNumber(x)} steps={steps} />
       <br />
 
-      {((marketSellerProfileRecordStore.data && stepNumber === 0) ||
-        marketSellerProfileRecordStore.data === null) && (
-        <SellerOnboardingIdentityAndCredentialsValidationForm
-          user={p.user}
-          marketSellerProfileRecord={marketSellerProfileRecordStore.data}
-          onSuccess={() => setStepNumber(1)}
-        />
-      )}
-      {marketSellerProfileRecordStore.data && (
+      {marketSellerProfileRecordStore.data !== undefined && (
         <>
+          {stepNumber === 0 && (
+            <SellerOnboardingIdentityAndCredentialsValidationForm
+              user={p.user}
+              marketSellerProfileRecord={marketSellerProfileRecordStore.data}
+              onSuccess={() => setStepNumber(1)}
+            />
+          )}
           {stepNumber === 1 && (
             <SellerOnboardingProfessionalProfileForm
+              user={p.user}
               marketSellerProfileRecord={marketSellerProfileRecordStore.data}
               onSuccess={() => setStepNumber(2)}
             />
