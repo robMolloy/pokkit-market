@@ -35,8 +35,8 @@ export type TMarketSellerProfileRecordCreateFormData = Partial<
     | "created"
     | "updated"
   > & {
-    identityDocumentFileUrl?: File;
-    clinicalSafetyCertificateFileUrl?: File;
+    identityDocumentFile?: File;
+    clinicalSafetyCertificateFile?: File;
   }
 >;
 export type TMarketSellerProfileRecordUpdateFormData = TMarketSellerProfileRecordCreateFormData & {
@@ -50,7 +50,12 @@ export const createMarketSellerProfileRecord = async (p: {
   data: TMarketSellerProfileRecordCreateFormData;
 }) => {
   try {
-    const resp = await p.pb.collection(collectionName).create(p.data);
+    const { clinicalSafetyCertificateFile, identityDocumentFile, ...rest } = p.data;
+    const resp = await p.pb.collection(collectionName).create({
+      clinicalSafetyCertificateFileUrl: clinicalSafetyCertificateFile,
+      identityDocumentFileUrl: identityDocumentFile,
+      ...rest,
+    });
     return marketSellerProfileRecordSchema.safeParse(resp);
   } catch (error) {
     console.error(error);
@@ -62,7 +67,12 @@ export const updateMarketSellerProfileRecord = async (p: {
   data: TMarketSellerProfileRecordUpdateFormData;
 }) => {
   try {
-    const resp = await p.pb.collection(collectionName).update(p.data.id, p.data);
+    const { clinicalSafetyCertificateFile, identityDocumentFile, ...rest } = p.data;
+    const resp = await p.pb.collection(collectionName).update(p.data.id, {
+      clinicalSafetyCertificateFileUrl: clinicalSafetyCertificateFile,
+      identityDocumentFileUrl: identityDocumentFile,
+      ...rest,
+    });
     return marketSellerProfileRecordSchema.safeParse(resp);
   } catch (error) {
     console.error(error);

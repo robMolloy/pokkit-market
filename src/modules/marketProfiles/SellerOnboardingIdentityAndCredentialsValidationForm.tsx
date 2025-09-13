@@ -113,26 +113,27 @@ export const SellerOnboardingIdentityAndCredentialsValidationForm = (p: {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <pre>{JSON.stringify({ x: p.marketSellerProfileRecord }, undefined, 2)}</pre>
         <form
           onSubmit={async (e) => {
             e.preventDefault();
 
             const resp = await (() => {
-              const data = {
-                id: p.user.id,
-                userId: p.user.id,
-                name,
-                dateOfBirth: dateOfBirth?.toISOString(),
-                countryOfRegistration,
-                professionalBody,
-                registrationNumber,
-                identityDocumentFileUrl: identityDocumentFile,
-                clinicalSafetyCertificateFileUrl: clinicalSafetyCertificateFile,
-              };
               const exists = !!p.marketSellerProfileRecord?.id;
               const fn = exists ? updateMarketSellerProfileRecord : createMarketSellerProfileRecord;
-              return fn({ pb, data });
+              return fn({
+                pb,
+                data: {
+                  id: p.user.id,
+                  userId: p.user.id,
+                  name,
+                  dateOfBirth: dateOfBirth?.toISOString(),
+                  countryOfRegistration,
+                  professionalBody,
+                  registrationNumber,
+                  identityDocumentFile,
+                  clinicalSafetyCertificateFile,
+                },
+              });
             })();
 
             if (!resp.success) return toast("Something went wrong!", { duration: 10_000 });
